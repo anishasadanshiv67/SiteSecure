@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MapContainer, 
-  Marker, 
-  Popup, 
-  Polygon, 
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  Polygon,
   useMapEvents,
   ImageOverlay,
   useMap
@@ -17,10 +17,10 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
@@ -49,7 +49,7 @@ const MapEvents = ({ onClick }: { onClick: (e: L.LeafletMouseEvent) => void }) =
 
 const ChangeView = ({ points }: { points: Coordinate[] }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     // Ensure Leaflet handles the container size correctly
     const timer = setTimeout(() => {
@@ -71,17 +71,17 @@ const ChangeView = ({ points }: { points: Coordinate[] }) => {
   return null;
 };
 
-const SubsiteMap: React.FC<SubsiteMapProps> = ({ 
-  coordinates = [], 
-  onChange, 
-  readOnly = false, 
+const SubsiteMap: React.FC<SubsiteMapProps> = ({
+  coordinates = [],
+  onChange,
+  readOnly = false,
   imageUrl,
   height = '400px',
   existingIncidents = [],
   singlePoint = false
 }) => {
   const [points, setPoints] = useState<Coordinate[]>(coordinates || []);
-  const [activePoint, setActivePoint] = useState<{x: number, y: number} | null>(null);
+  const [activePoint, setActivePoint] = useState<{ x: number, y: number } | null>(null);
 
   useEffect(() => {
     if (coordinates) setPoints(coordinates);
@@ -120,7 +120,7 @@ const SubsiteMap: React.FC<SubsiteMapProps> = ({
           </div>
         )}
 
-        <MapContainer 
+        <MapContainer
           crs={L.CRS.Simple}
           bounds={bounds}
           center={[500, 500]}
@@ -146,8 +146,8 @@ const SubsiteMap: React.FC<SubsiteMapProps> = ({
 
           {existingIncidents.map((inc, idx) => (
             inc.location?.x && (
-              <Marker 
-                key={`inc-${idx}`} 
+              <Marker
+                key={`inc-${idx}`}
                 position={[inc.location.y, inc.location.x]}
                 icon={L.divIcon({
                   html: `<div class="p-1 bg-rose-500 rounded-full border-2 border-white shadow-lg animate-bounce-subtle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>`,
@@ -166,9 +166,8 @@ const SubsiteMap: React.FC<SubsiteMapProps> = ({
                     <p className="text-sm font-black text-slate-900 mb-1">{inc.title}</p>
                     <p className="text-[10px] text-slate-500 line-clamp-2">{inc.description}</p>
                     <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between">
-                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${
-                        inc.severity === 'high' ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}>{inc.severity}</span>
+                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${inc.severity === 'high' ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>{inc.severity}</span>
                       <span className="text-[8px] font-bold text-slate-400">{new Date(inc.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -178,30 +177,32 @@ const SubsiteMap: React.FC<SubsiteMapProps> = ({
           ))}
 
           {activePoint && !readOnly && (
-            <Popup 
-              position={[activePoint.y, activePoint.x]} 
-              onClose={() => setActivePoint(null)}
+            <Popup
+              position={[activePoint.y, activePoint.x]}
+              eventHandlers={{
+                remove: () => setActivePoint(null)
+              }}
               className="custom-popup"
             >
-              <PopupForm 
-                activePoint={activePoint} 
-                onConfirm={handleAddPoint} 
-                onCancel={() => setActivePoint(null)} 
+              <PopupForm
+                activePoint={activePoint}
+                onConfirm={handleAddPoint}
+                onCancel={() => setActivePoint(null)}
                 pointsCount={points.length}
               />
             </Popup>
           )}
 
           {!singlePoint && points.length >= 3 && (
-            <Polygon 
-              positions={polygonPositions} 
-              pathOptions={{ 
-                color: '#6366f1', 
-                fillColor: '#6366f1', 
+            <Polygon
+              positions={polygonPositions}
+              pathOptions={{
+                color: '#6366f1',
+                fillColor: '#6366f1',
                 fillOpacity: 0.2,
                 weight: 2,
                 dashArray: '4, 8'
-              }} 
+              }}
             />
           )}
         </MapContainer>
@@ -218,7 +219,7 @@ const SubsiteMap: React.FC<SubsiteMapProps> = ({
 
         {/* Clear Button */}
         {!readOnly && points.length > 0 && (
-          <button 
+          <button
             type="button"
             onClick={clearPoints}
             className="absolute bottom-4 right-4 z-[1000] p-3 bg-rose-500/20 text-rose-500 border border-rose-500/20 rounded-xl shadow-lg hover:bg-rose-500 hover:text-white transition-all backdrop-blur-md"
@@ -274,7 +275,7 @@ const PopupForm = ({ activePoint, onConfirm, onCancel, pointsCount }: any) => {
       </div>
 
       <div className="space-y-4">
-        <button 
+        <button
           type="button"
           onClick={autoDetectGPS}
           disabled={detecting}
@@ -286,28 +287,28 @@ const PopupForm = ({ activePoint, onConfirm, onCancel, pointsCount }: any) => {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Latitude</label>
-            <input 
+            <input
               autoFocus
-              type="text" 
+              type="text"
               value={manualInput.lat}
-              onChange={(e) => setManualInput({...manualInput, lat: e.target.value})}
+              onChange={(e) => setManualInput({ ...manualInput, lat: e.target.value })}
               placeholder="0.0000"
               className="w-full bg-slate-950 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-indigo-500 outline-none"
             />
           </div>
           <div className="space-y-1">
             <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Longitude</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={manualInput.lng}
-              onChange={(e) => setManualInput({...manualInput, lng: e.target.value})}
+              onChange={(e) => setManualInput({ ...manualInput, lng: e.target.value })}
               placeholder="0.0000"
               className="w-full bg-slate-950 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-indigo-500 outline-none"
             />
           </div>
         </div>
 
-        <button 
+        <button
           type="button"
           onClick={handleSubmit}
           className="w-full py-2.5 bg-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all"
