@@ -19,7 +19,7 @@ const getSites = async (req, res) => {
     // 2. Site Admin sees their allotted sites IF assigned, otherwise they see all sites.
     // 3. Other roles MUST have at least one site in siteIds to see anything.
     if (role !== 'super_admin') {
-      if (role === 'site_admin') {
+      if (role === 'site_admin' || role === 'compliance_officer') {
         if (userSiteIds.length > 0) query._id = { $in: userSiteIds };
       } else {
         if (userSiteIds.length === 0) return res.json([]); 
@@ -146,7 +146,7 @@ const getSubsites = async (req, res) => {
 
     // Permission check
     if (role !== 'super_admin') {
-      if (role === 'site_admin') {
+      if (role === 'site_admin' || role === 'compliance_officer') {
         if (userSiteIds.length > 0 && !userSiteIds.includes(req.params.siteId)) {
           return res.status(403).json({ message: 'Unauthorized: Access restricted' });
         }

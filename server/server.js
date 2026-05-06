@@ -18,6 +18,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
+const inspectionRoutes = require('./routes/inspectionRoutes');
 const logRoutes = require('./routes/logRoutes');
 const userRoutes = require('./routes/userRoutes');
 const siteRoutes = require('./routes/siteRoutes');
@@ -53,6 +54,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/incidents', incidentRoutes);
+app.use('/api/inspections', inspectionRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sites', siteRoutes);

@@ -29,10 +29,12 @@ import {
 
 import API from '../../utils/api';
 import jsQR from 'jsqr';
+import InspectionTaskView from './InspectionTaskView';
+import { CheckSquare } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000';
 
-type ViewState = 'MENU' | 'SCAN' | 'SITE_LIST' | 'SUBSITE_LIST' | 'SUBSITE_DETAIL' | 'REPORT' | 'HISTORY';
+type ViewState = 'MENU' | 'SCAN' | 'SITE_LIST' | 'SUBSITE_LIST' | 'SUBSITE_DETAIL' | 'REPORT' | 'HISTORY' | 'INSPECTIONS';
 
 const FlaggerDashboard: React.FC = () => {
   const [view, setView] = useState<ViewState>('MENU');
@@ -47,6 +49,9 @@ const FlaggerDashboard: React.FC = () => {
   const [selectedSubsite, setSelectedSubsite] = useState<any>(null);
   const [incidents, setIncidents] = useState<any[]>([]);
   const [myIncidents, setMyIncidents] = useState<any[]>([]);
+  const [inspectionTasks, setInspectionTasks] = useState<any[]>([]);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [linkedInspectionTaskId, setLinkedInspectionTaskId] = useState<string | null>(null);
   
   // Report Form States
   const [reportForm, setReportForm] = useState({
@@ -71,6 +76,19 @@ const FlaggerDashboard: React.FC = () => {
       const { data } = await API.get('/incidents/my');
       setMyIncidents(data);
     } catch (err) {}
+  };
+
+  const fetchInspectionTasks = async () => {
+    try {
+      setLoading(true);
+      const { data } = await API.get('/inspections/tasks');
+      setInspectionTasks(data);
+      setView('INSPECTIONS');
+    } catch (err) {
+      setError('Failed to fetch inspection tasks');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchSites = async () => {
@@ -206,6 +224,10 @@ const FlaggerDashboard: React.FC = () => {
       formData.append('images', file);
     });
 
+    if (linkedInspectionTaskId) {
+       formData.append('linkedInspectionTaskId', linkedInspectionTaskId);
+    }
+
     try {
       if (editingId) {
         await API.put(`/incidents/${editingId}`, formData);
@@ -217,6 +239,7 @@ const FlaggerDashboard: React.FC = () => {
       clearReportForm();
       setTimeout(() => {
         setSuccess('');
+        setLinkedInspectionTaskId(null);
         if (view === 'HISTORY') fetchMyIncidents();
         else handleSubsiteSelect(selectedSubsite);
       }, 2000);
@@ -281,6 +304,22 @@ const FlaggerDashboard: React.FC = () => {
         <h3 className="text-2xl font-black text-white mb-4">View Sites</h3>
         <p className="text-slate-500 text-sm leading-relaxed">
           Browse all available facility locations and their specific sub-zones.
+        </p>
+      </button>
+
+      <button 
+        onClick={fetchInspectionTasks}
+        className="group relative bg-white/5 border border-white/10 rounded-[3rem] p-10 text-center hover:border-indigo-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
+      >
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+           <CheckSquare className="w-40 h-40" />
+        </div>
+        <div className="w-24 h-24 bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+          <CheckSquare className="w-12 h-12 text-indigo-400" />
+        </div>
+        <h3 className="text-2xl font-black text-white mb-4">Inspections</h3>
+        <p className="text-slate-500 text-sm leading-relaxed">
+          Access your assigned safety inspection tasks and audit cycles.
         </p>
       </button>
 
@@ -621,6 +660,61 @@ const FlaggerDashboard: React.FC = () => {
     </div>
   );
 
+  const renderInspections = () => (
+    <div className="space-y-8 animate-fade-in">
+       <button onClick={resetState} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors font-bold text-sm">
+        <ChevronLeft className="w-5 h-5" /> Back to Menu
+      </button>
+
+      <div className="flex items-center justify-between">
+         <div>
+            <h2 className="text-3xl font-black text-white">Assigned Inspections</h2>
+            <p className="text-slate-500 text-sm mt-1">Complete your assigned safety audits for your allotted facilities.</p>
+         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {inspectionTasks.map(task => (
+          <div 
+            key={task._id}
+            onClick={() => task.status !== 'completed' && setSelectedTask(task)}
+            className={`group bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between transition-all shadow-xl ${task.status === 'completed' ? 'opacity-60 cursor-default' : 'cursor-pointer hover:border-indigo-500/50'}`}
+          >
+            <div className="flex items-center gap-6">
+               <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                  <CheckSquare className="w-8 h-8 text-indigo-400" />
+               </div>
+               <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-slate-800 text-slate-400 rounded-md">
+                      {task.inspectionDriveId?.inspectionType}
+                    </span>
+                    {task.status === 'completed' && (
+                      <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded-md">Completed</span>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-black text-white mb-0.5">{task.subsiteId?.name}</h3>
+                  <p className="text-slate-500 text-xs flex items-center gap-2">
+                    <MapPin className="w-3 h-3" /> {task.siteId?.name}
+                  </p>
+               </div>
+            </div>
+            {task.status !== 'completed' && (
+              <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 transition-all">
+                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white" />
+              </div>
+            )}
+          </div>
+        ))}
+        {inspectionTasks.length === 0 && (
+          <div className="col-span-full py-40 text-center border-2 border-dashed border-white/5 rounded-[4rem] text-slate-700 text-xs font-black uppercase tracking-widest">
+            No inspection tasks assigned to you
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   const renderHistory = () => (
     <div className="space-y-8 animate-fade-in">
        <button onClick={resetState} className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors font-bold text-sm">
@@ -678,6 +772,25 @@ const FlaggerDashboard: React.FC = () => {
       {view === 'SUBSITE_DETAIL' && renderSubsiteDetail()}
       {view === 'REPORT' && renderReportForm()}
       {view === 'HISTORY' && renderHistory()}
+      {view === 'INSPECTIONS' && renderInspections()}
+
+      {selectedTask && (
+        <InspectionTaskView 
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onSuccess={() => {
+            setSelectedTask(null);
+            fetchInspectionTasks();
+          }}
+          onRaiseIncident={(task) => {
+            setSelectedTask(null);
+            setSelectedSite({ _id: task.siteId._id, name: task.siteId.name });
+            setSelectedSubsite(task.subsiteId);
+            setLinkedInspectionTaskId(task._id);
+            setView('REPORT');
+          }}
+        />
+      )}
 
       {loading && view !== 'MENU' && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-950/20 backdrop-blur-sm">

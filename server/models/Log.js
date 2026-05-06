@@ -13,7 +13,10 @@ const LogSchema = new mongoose.Schema({
   incident: {
     type: mongoose.Schema.ObjectId,
     ref: 'Incident',
-    required: true
+    required: false
+  },
+  details: {
+    type: String
   },
   timestamp: {
     type: Date,
