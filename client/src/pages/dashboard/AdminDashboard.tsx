@@ -7,6 +7,7 @@ import {
   Map as MapIcon, 
   Shield, 
   Plus, 
+  Search,
   Trash2, 
   CheckCircle, 
   XCircle, 
@@ -27,7 +28,8 @@ import {
   ExternalLink,
   Mail,
   Key,
-  ShieldCheck
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -62,6 +64,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [personnelSearch, setPersonnelSearch] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [message, setMessage] = useState({ text: '', type: '' });
   
   // Form States
   const [newSite, setNewSite] = useState({ name: '', description: '', location: '' });
