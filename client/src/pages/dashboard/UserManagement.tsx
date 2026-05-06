@@ -169,7 +169,7 @@ const UserManagement = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-md">
+        <div className="glass-card rounded-[2.5rem] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>

@@ -61,7 +61,7 @@ const Sidebar: React.FC = () => {
     } else if (user.role === 'site_admin' || user.role === 'super_admin') {
       const items = [
         { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/admin' },
-        { icon: Settings, label: 'System Config', path: '/dashboard/admin' },
+        { icon: Settings, label: 'System Config', path: '/dashboard/settings' },
       ];
 
       if (user.role === 'super_admin') {

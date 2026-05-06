@@ -11,6 +11,7 @@ import ResolverDashboard from './pages/dashboard/ResolverDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
 import ComplianceDashboard from './pages/compliance/ComplianceDashboard';
 import UserManagement from './pages/dashboard/UserManagement';
+import Settings from './pages/dashboard/Settings';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -97,6 +98,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['super_admin']}>
                 <UserManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/settings" 
+            element={
+              <ProtectedRoute allowedRoles={['site_admin', 'super_admin']}>
+                <Settings />
               </ProtectedRoute>
             } 
           />

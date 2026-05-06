@@ -59,7 +59,9 @@ const AdminDashboard = () => {
   
   const [assignTab, setAssignTab] = useState<AssignTab>('EXISTING');
   const [activeSubsite, setActiveSubsite] = useState<any>(null);
-  const [message, setMessage] = useState({ text: '', type: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [personnelSearch, setPersonnelSearch] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   
   // Form States
   const [newSite, setNewSite] = useState({ name: '', description: '', location: '' });
@@ -316,24 +318,35 @@ const AdminDashboard = () => {
     <DashboardLayout>
       {view === 'LIST' ? (
         <div className="animate-fade-in">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-6">
             <div>
               <h1 className="text-4xl font-black text-white tracking-tight">Industrial Sites</h1>
               <p className="text-slate-400 mt-2">Manage and monitor all operational facility locations.</p>
             </div>
-            <button 
-              onClick={() => setShowSiteModal(true)}
-              className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20"
-            >
-              <Plus className="w-5 h-5" />
-              Add New Site
-            </button>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative group min-w-[300px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search facilities..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-indigo-500/50 transition-all"
+                />
+              </div>
+              <button 
+                onClick={() => setShowSiteModal(true)}
+                className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 whitespace-nowrap"
+              >
+                <Plus className="w-5 h-5" />
+                Add Site
+              </button>
+            </div>
           </div>
 
-          {/* Sites Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sites.map((site) => (
+            {sites.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.location.toLowerCase().includes(searchTerm.toLowerCase())).map((site) => (
               <div 
                 key={site._id} 
                 className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/50 transition-all hover:bg-white/10"
@@ -354,13 +367,28 @@ const AdminDashboard = () => {
                     <div className="flex items-center gap-2">
                        <button 
                         onClick={() => { setSelectedSite(site); setNewSite({ name: site.name, description: site.description, location: site.location }); setPreviewUrl(`${API_URL}${site.mapImage}`); setShowEditSiteModal(true); }}
-                        className="p-2 bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all"
+                        className="p-2.5 bg-white/5 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
                        >
                          <Edit2 className="w-4 h-4" />
                        </button>
+                       <button 
+                        onClick={async () => {
+                          if (!window.confirm(`PERMANENTLY DELETE ${site.name}? This cannot be undone.`)) return;
+                          try {
+                            await API.delete(`/sites/${site._id}`);
+                            showToast('Facility purged from system.', 'success');
+                            fetchSites();
+                          } catch (err) {
+                            showToast('Failed to delete site.', 'error');
+                          }
+                        }}
+                        className="p-2.5 bg-white/5 rounded-xl text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
                     </div>
-                    <button onClick={() => fetchSiteDetails(site._id)} className="text-xs font-bold text-indigo-400 group-hover:text-white transition-colors flex items-center gap-1">
-                      Manage <ExternalLink className="w-3 h-3" />
+                    <button onClick={() => fetchSiteDetails(site._id)} className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 bg-indigo-500/5 rounded-xl border border-indigo-500/20 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2">
+                      Access Terminal <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -555,22 +583,30 @@ const AdminDashboard = () => {
                   <h2 className="text-2xl font-black text-white flex items-center gap-3 uppercase tracking-tight">
                     <Users className="text-indigo-500 w-6 h-6" /> Personnel
                   </h2>
+                  <button 
+                    onClick={() => setShowAssignModal(true)}
+                    className="p-3 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-lg shadow-indigo-600/10"
+                    title="Assign Personnel"
+                  >
+                    <UserPlus className="w-5 h-5" />
+                  </button>
                </div>
                
-               <button 
-                  onClick={() => setShowAssignModal(true)}
-                  className="w-full py-6 bg-indigo-600/10 border-2 border-dashed border-indigo-600/30 rounded-[2rem] text-indigo-400 hover:bg-indigo-600/20 hover:border-indigo-600/50 transition-all flex flex-col items-center justify-center gap-3 group"
-               >
-                  <div className="p-3 bg-indigo-600 rounded-2xl group-hover:scale-110 transition-transform shadow-xl shadow-indigo-600/20">
-                    <UserPlus className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="font-black uppercase tracking-[0.2em] text-sm">Assign or Create Role</span>
-               </button>
+               <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                  <input 
+                    type="text" 
+                    placeholder="Filter staff by name..." 
+                    value={personnelSearch}
+                    onChange={(e) => setPersonnelSearch(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-all"
+                  />
+               </div>
 
-               <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
+               <div className="glass-card rounded-[2.5rem] overflow-hidden">
                   <div className="divide-y divide-white/5">
-                    {personnel.map((user) => (
-                      <div key={user._id} className="p-6 flex items-center gap-4 hover:bg-white/5 transition-all group/user">
+                    {personnel.filter(p => p.name.toLowerCase().includes(personnelSearch.toLowerCase())).map((user) => (
+                      <div key={user._id} className="p-6 flex items-center gap-4 hover:bg-white/[0.03] transition-all group/user">
                         <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-indigo-400 font-bold border border-white/10 text-lg shadow-inner">
                           {user.name[0]}
                         </div>
