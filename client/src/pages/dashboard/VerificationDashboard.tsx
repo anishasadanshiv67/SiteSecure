@@ -56,6 +56,7 @@ const VerificationDashboard = () => {
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [distanceToIncident, setDistanceToIncident] = useState<number | null>(null);
+  const [bypassGeofence, setBypassGeofence] = useState(false);
 
   // Scanner Refs
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -557,14 +558,25 @@ const VerificationDashboard = () => {
                   >
                     <XCircle className="w-5 h-5" /> Reject Report
                   </button>
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-between px-2">
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Demo Mode</span>
+                    <button 
+                      onClick={() => setBypassGeofence(!bypassGeofence)}
+                      className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                        bypassGeofence ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white/5 text-slate-500 border border-white/10'
+                      }`}
+                    >
+                      Bypass Geofence: {bypassGeofence ? 'ON' : 'OFF'}
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
                   <button 
                     onClick={() => handleAction(selectedIncident._id, 'verify')}
-                    disabled={distanceToIncident === null || distanceToIncident > 10}
+                    disabled={!bypassGeofence && (distanceToIncident === null || distanceToIncident > 10)}
                     className={`w-full flex flex-col items-center justify-center gap-1 py-4 font-black rounded-2xl transition-all shadow-lg ${
-                      distanceToIncident !== null && distanceToIncident <= 10
+                      bypassGeofence || (distanceToIncident !== null && distanceToIncident <= 10)
                         ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
                         : 'bg-white/5 border border-white/10 text-slate-500 cursor-not-allowed'
                     }`}
@@ -572,15 +584,21 @@ const VerificationDashboard = () => {
                     <div className="flex items-center gap-3">
                       <ShieldCheck className="w-5 h-5" /> Mark as Verified
                     </div>
-                    {distanceToIncident !== null && (
-                      <span className={`text-[9px] uppercase tracking-widest ${distanceToIncident <= 10 ? 'text-emerald-200' : 'text-rose-400'}`}>
-                        {distanceToIncident <= 10 
-                          ? `Within Range (${distanceToIncident.toFixed(1)}m)` 
-                          : `Too Far (${distanceToIncident.toFixed(1)}m away)`}
-                      </span>
-                    )}
-                    {distanceToIncident === null && (
-                      <span className="text-[9px] uppercase tracking-widest text-amber-400 animate-pulse">Detecting GPS...</span>
+                    {bypassGeofence ? (
+                      <span className="text-[9px] uppercase tracking-widest text-emerald-200 animate-pulse">Demo Bypass Active</span>
+                    ) : (
+                      <>
+                        {distanceToIncident !== null && (
+                          <span className={`text-[9px] uppercase tracking-widest ${distanceToIncident <= 10 ? 'text-emerald-200' : 'text-rose-400'}`}>
+                            {distanceToIncident <= 10 
+                              ? `Within Range (${distanceToIncident.toFixed(1)}m)` 
+                              : `Too Far (${distanceToIncident.toFixed(1)}m away)`}
+                          </span>
+                        )}
+                        {distanceToIncident === null && (
+                          <span className="text-[9px] uppercase tracking-widest text-amber-400 animate-pulse">Detecting GPS...</span>
+                        )}
+                      </>
                     )}
                   </button>
                   <button 
@@ -589,6 +607,17 @@ const VerificationDashboard = () => {
                   >
                     <XCircle className="w-5 h-5" /> Reject Report
                   </button>
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-between px-2">
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Demo Mode</span>
+                    <button 
+                      onClick={() => setBypassGeofence(!bypassGeofence)}
+                      className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                        bypassGeofence ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white/5 text-slate-500 border border-white/10'
+                      }`}
+                    >
+                      Bypass Geofence: {bypassGeofence ? 'ON' : 'OFF'}
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -596,20 +625,53 @@ const VerificationDashboard = () => {
 
           {/* Evidence Column */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px]">
-              {selectedIncident.image ? (
-                <img 
-                  src={`${API_URL}${selectedIncident.image}`} 
-                  alt="Evidence" 
-                  className="w-full h-full object-cover cursor-zoom-in"
-                  onClick={() => setLightboxImage(`${API_URL}${selectedIncident.image}`)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-slate-900/50">
-                  <AlertTriangle className="w-12 h-12 mb-4 opacity-20" />
-                  <p className="text-xs font-black uppercase tracking-widest">No Image Evidence Provided</p>
-                </div>
-              )}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Evidence Gallery</span>
+                <span className="text-[10px] font-bold text-slate-600">{(selectedIncident.images?.length || (selectedIncident.image ? 1 : 0))} Files</span>
+              </div>
+              
+              <div className={`grid gap-4 ${selectedIncident.images?.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {selectedIncident.images && selectedIncident.images.length > 0 ? (
+                  selectedIncident.images.map((img: string, idx: number) => (
+                    <div 
+                      key={idx}
+                      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl aspect-video group cursor-zoom-in relative"
+                      onClick={() => setLightboxImage(`${API_URL}${img}`)}
+                    >
+                      <img 
+                        src={`${API_URL}${img}`} 
+                        alt={`Evidence ${idx + 1}`} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  selectedIncident.image ? (
+                    <div 
+                      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl aspect-video group cursor-zoom-in relative"
+                      onClick={() => setLightboxImage(`${API_URL}${selectedIncident.image}`)}
+                    >
+                      <img 
+                        src={`${API_URL}${selectedIncident.image}`} 
+                        alt="Evidence" 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-64 flex flex-col items-center justify-center text-slate-600 bg-slate-900/50 rounded-[2.5rem] border border-white/10">
+                      <AlertTriangle className="w-12 h-12 mb-4 opacity-20" />
+                      <p className="text-xs font-black uppercase tracking-widest">No Image Evidence Provided</p>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px]">

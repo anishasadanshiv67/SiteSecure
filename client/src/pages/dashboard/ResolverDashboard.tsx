@@ -56,12 +56,13 @@ const ResolverDashboard = () => {
 
   // Form States
   const [resolutionNotes, setResolutionNotes] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   // Geofencing States
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [distanceToIncident, setDistanceToIncident] = useState<number | null>(null);
+  const [bypassGeofence, setBypassGeofence] = useState(false);
 
   const qrFileInputRef = useRef<HTMLInputElement>(null);
   const resolutionFileInputRef = useRef<HTMLInputElement>(null);
@@ -194,7 +195,7 @@ const ResolverDashboard = () => {
 
   const handleResolveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resolutionNotes || !selectedFile) {
+    if (!resolutionNotes || selectedFiles.length === 0) {
       setMessage({ text: 'Notes and image proof are required', type: 'error' });
       return;
     }
@@ -202,15 +203,17 @@ const ResolverDashboard = () => {
     setSubmitting(true);
     const formData = new FormData();
     formData.append('notes', resolutionNotes);
-    formData.append('image', selectedFile);
+    selectedFiles.forEach(file => {
+      formData.append('images', file);
+    });
 
     try {
       await API.put(`/incidents/${selectedIncident._id}/resolve`, formData);
       setMessage({ text: 'Hazard resolved successfully!', type: 'success' });
       setSelectedIncident(null);
       setResolutionNotes('');
-      setSelectedFile(null);
-      setPreviewUrl(null);
+      setSelectedFiles([]);
+      setPreviewUrls([]);
       setView('INCIDENTS');
       fetchData();
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
@@ -222,11 +225,25 @@ const ResolverDashboard = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newFiles = [...selectedFiles, ...files].slice(0, 5);
+      setSelectedFiles(newFiles);
+      
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setPreviewUrls(prev => [...prev, ...newPreviews].slice(0, 5));
     }
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = [...selectedFiles];
+    newFiles.splice(index, 1);
+    setSelectedFiles(newFiles);
+
+    const newPreviews = [...previewUrls];
+    URL.revokeObjectURL(newPreviews[index]);
+    newPreviews.splice(index, 1);
+    setPreviewUrls(newPreviews);
   };
 
   // Grouping Logic
@@ -451,43 +468,124 @@ const ResolverDashboard = () => {
                 className="w-full bg-slate-900/50 border border-white/10 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-blue-500 transition-all resize-none min-h-[100px]"
               />
 
-              <div 
-                onClick={() => resolutionFileInputRef.current?.click()}
-                className="w-full aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all group overflow-hidden relative"
-              >
-                {previewUrl ? (
-                  <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
-                ) : (
-                  <>
-                    <Camera className="w-8 h-8 text-slate-600 mb-2 group-hover:scale-110 transition-transform" />
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Upload Proof</span>
-                  </>
+              <div className="grid grid-cols-2 gap-4">
+                {previewUrls.map((url, idx) => (
+                  <div key={idx} className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group">
+                    <img src={url} className="w-full h-full object-cover" alt="Preview" />
+                    <button 
+                      type="button"
+                      onClick={() => removeFile(idx)}
+                      className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                
+                {selectedFiles.length < 5 && (
+                  <div className="contents">
+                    <div 
+                      onClick={() => resolutionFileInputRef.current?.click()}
+                      className="aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all group overflow-hidden relative"
+                    >
+                      <Upload className="w-8 h-8 text-slate-600 mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Upload Proof</span>
+                    </div>
+
+                    <div 
+                      onClick={() => document.getElementById('resCamera')?.click()}
+                      className="aspect-video bg-indigo-500/10 border-2 border-dashed border-indigo-500/20 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/20 transition-all group"
+                    >
+                      <Camera className="w-8 h-8 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest text-center">Capture<br/>Proof</span>
+                      <input type="file" id="resCamera" onChange={handleFileChange} className="hidden" accept="image/*" capture="environment" />
+                    </div>
+                  </div>
                 )}
               </div>
-              <input type="file" ref={resolutionFileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+              <input type="file" ref={resolutionFileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" multiple />
 
               <button 
                 type="submit"
-                disabled={submitting || distanceToIncident === null || distanceToIncident > 10}
+                disabled={submitting || (!bypassGeofence && (distanceToIncident === null || distanceToIncident > 10))}
                 className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all flex flex-col items-center justify-center gap-1 ${
-                  distanceToIncident !== null && distanceToIncident <= 10
+                  bypassGeofence || (distanceToIncident !== null && distanceToIncident <= 10)
                     ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20'
                     : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
                 }`}
               >
                 {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>Complete & Resolve</span>}
-                {distanceToIncident !== null && (
-                   <span className={`text-[8px] ${distanceToIncident <= 10 ? 'text-blue-200' : 'text-rose-400'}`}>
-                     {distanceToIncident <= 10 ? `In Range (${distanceToIncident.toFixed(1)}m)` : `Out of Range (${distanceToIncident.toFixed(1)}m)`}
-                   </span>
+                {bypassGeofence ? (
+                  <span className="text-[8px] text-blue-200 animate-pulse">Demo Bypass Active</span>
+                ) : (
+                  <>
+                    {distanceToIncident !== null && (
+                       <span className={`text-[8px] ${distanceToIncident <= 10 ? 'text-blue-200' : 'text-rose-400'}`}>
+                         {distanceToIncident <= 10 ? `In Range (${distanceToIncident.toFixed(1)}m)` : `Out of Range (${distanceToIncident.toFixed(1)}m)`}
+                       </span>
+                    )}
+                  </>
                 )}
               </button>
+              
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between px-2">
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Demo Mode</span>
+                <button 
+                  type="button"
+                  onClick={() => setBypassGeofence(!bypassGeofence)}
+                  className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                    bypassGeofence ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white/5 text-slate-500 border border-white/10'
+                  }`}
+                >
+                  Bypass Geofence: {bypassGeofence ? 'ON' : 'OFF'}
+                </button>
+              </div>
             </form>
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden h-[400px]">
-              {selectedIncident.image && <img src={`${API_URL}${selectedIncident.image}`} className="w-full h-full object-cover" alt="" />}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-white">Incident Evidence</span>
+                <span className="text-[10px] font-bold text-slate-500">{(selectedIncident.images?.length || (selectedIncident.image ? 1 : 0))} Files</span>
+              </div>
+              
+              <div className={`grid gap-4 ${selectedIncident.images?.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {selectedIncident.images && selectedIncident.images.length > 0 ? (
+                  selectedIncident.images.map((img: string, idx: number) => (
+                    <div 
+                      key={idx}
+                      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl aspect-video group cursor-zoom-in relative"
+                      onClick={() => setLightboxImage(`${API_URL}${img}`)}
+                    >
+                      <img 
+                        src={`${API_URL}${img}`} 
+                        alt={`Evidence ${idx + 1}`} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  selectedIncident.image && (
+                    <div 
+                      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl aspect-video group cursor-zoom-in relative"
+                      onClick={() => setLightboxImage(`${API_URL}${selectedIncident.image}`)}
+                    >
+                      <img 
+                        src={`${API_URL}${selectedIncident.image}`} 
+                        alt="Evidence" 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden h-[400px]">
                <SubsiteMap 

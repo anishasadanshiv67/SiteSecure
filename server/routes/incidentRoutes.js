@@ -14,7 +14,10 @@ const {
   getSubsiteIncidents,
   updateIncident,
   deleteIncident,
-  escalateIncident
+  escalateIncident,
+  getComplianceIncidents,
+  approveClosure,
+  reinspectIncident
 } = require('../controllers/incidentController');
 const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
 
@@ -36,11 +39,11 @@ const upload = multer({ storage: storage });
 router.use(verifyToken); // All incident routes are protected
 
 // General routes
-router.post('/', upload.single('image'), createIncident);
+router.post('/', upload.array('images', 5), createIncident);
 router.get('/my', getMyIncidents);
 router.get('/all', getAllIncidents);
 router.get('/subsite/:subsiteId', getSubsiteIncidents);
-router.put('/:id', upload.single('image'), updateIncident);
+router.put('/:id', upload.array('images', 5), updateIncident);
 router.delete('/:id', deleteIncident);
 
 // Online Verifier routes
@@ -55,6 +58,11 @@ router.put('/:id/verify', authorizeRoles('ground_verifier'), verifyIncident);
 
 // Resolver routes
 router.get('/verified', authorizeRoles('resolver'), getVerifiedIncidents);
-router.put('/:id/resolve', authorizeRoles('resolver'), upload.single('image'), resolveIncident);
+router.put('/:id/resolve', authorizeRoles('resolver'), upload.array('images', 5), resolveIncident);
+
+// Compliance Officer routes
+router.get('/compliance', authorizeRoles('compliance_officer'), getComplianceIncidents);
+router.put('/:id/compliance-approve', authorizeRoles('compliance_officer'), approveClosure);
+router.put('/:id/reinspect', authorizeRoles('compliance_officer'), reinspectIncident);
 
 module.exports = router;

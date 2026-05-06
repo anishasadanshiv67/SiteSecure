@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
       'ground_verifier',
       'resolver',
       'site_admin',
-      'super_admin'
+      'super_admin',
+      'compliance_officer'
     ],
     required: true,
   },

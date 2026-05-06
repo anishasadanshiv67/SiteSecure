@@ -38,6 +38,8 @@ const Login = () => {
         navigate('/dashboard/resolution');
       } else if (data.user.role === 'site_admin' || data.user.role === 'super_admin') {
         navigate('/dashboard/admin');
+      } else if (data.user.role === 'compliance_officer') {
+        navigate('/dashboard/compliance');
       } else {
         navigate('/');
       }

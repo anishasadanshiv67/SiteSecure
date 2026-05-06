@@ -9,6 +9,7 @@ import VerificationDashboard from './pages/dashboard/VerificationDashboard';
 import SecurityLog from './pages/dashboard/SecurityLog';
 import ResolverDashboard from './pages/dashboard/ResolverDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
+import ComplianceDashboard from './pages/compliance/ComplianceDashboard';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -79,6 +80,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['site_admin', 'super_admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/compliance" 
+            element={
+              <ProtectedRoute allowedRoles={['compliance_officer']}>
+                <ComplianceDashboard />
               </ProtectedRoute>
             } 
           />

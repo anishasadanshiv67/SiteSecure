@@ -17,7 +17,7 @@ const IncidentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['reported', 'approved', 'rejected', 'verified', 'resolved', 'closed'],
+    enum: ['reported', 'approved', 'rejected', 'verified', 'resolved', 'compliance_review', 'closed'],
     default: 'reported'
   },
   createdBy: {
@@ -41,12 +41,21 @@ const IncidentSchema = new mongoose.Schema({
     x: Number,
     y: Number
   },
-  image: String,
+  images: [String],
   resolution: {
     notes: String,
-    image: String,
+    images: [String],
     resolvedAt: Date
   },
+  complianceReview: {
+    notes: String,
+    reviewedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User'
+    },
+    reviewedAt: Date
+  },
+  closedAt: Date,
   createdAt: {
     type: Date,
     default: Date.now

@@ -56,8 +56,8 @@ const FlaggerDashboard: React.FC = () => {
     locationName: ''
   });
   const [reportPoint, setReportPoint] = useState<any[]>([]);
-  const [reportFile, setReportFile] = useState<File | null>(null);
-  const [reportPreview, setReportPreview] = useState<string | null>(null);
+  const [reportFiles, setReportFiles] = useState<File[]>([]);
+  const [reportPreviews, setReportPreviews] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -165,11 +165,25 @@ const FlaggerDashboard: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setReportFile(file);
-      setReportPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newFiles = [...reportFiles, ...files].slice(0, 5); // Limit to 5
+      setReportFiles(newFiles);
+      
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setReportPreviews(prev => [...prev, ...newPreviews].slice(0, 5));
     }
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = [...reportFiles];
+    newFiles.splice(index, 1);
+    setReportFiles(newFiles);
+
+    const newPreviews = [...reportPreviews];
+    URL.revokeObjectURL(newPreviews[index]);
+    newPreviews.splice(index, 1);
+    setReportPreviews(newPreviews);
   };
 
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -188,7 +202,9 @@ const FlaggerDashboard: React.FC = () => {
     formData.append('lng', reportPoint[0].lng.toString());
     formData.append('x', reportPoint[0].x.toString());
     formData.append('y', reportPoint[0].y.toString());
-    if (reportFile) formData.append('image', reportFile);
+    reportFiles.forEach(file => {
+      formData.append('images', file);
+    });
 
     try {
       if (editingId) {
@@ -219,8 +235,8 @@ const FlaggerDashboard: React.FC = () => {
       locationName: ''
     });
     setReportPoint([]);
-    setReportFile(null);
-    setReportPreview(null);
+    setReportFiles([]);
+    setReportPreviews([]);
     setEditingId(null);
   };
 
@@ -410,10 +426,25 @@ const FlaggerDashboard: React.FC = () => {
                   <h4 className="font-black text-white mb-1 text-sm">{inc.title}</h4>
                   <p className="text-slate-400 text-[10px] mb-3 line-clamp-2 leading-relaxed">{inc.description}</p>
                   
-                  {inc.image && (
-                    <div className="mb-3 rounded-xl overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${inc.image}`)}>
-                      <img src={`${API_URL}${inc.image}`} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" alt="" />
-                      <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[8px] font-black text-white uppercase tracking-widest">View Photo</div>
+                  {(inc.image || (inc.images && inc.images.length > 0)) && (
+                    <div className={`grid gap-2 mb-3 ${inc.images && inc.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {inc.images && inc.images.length > 0 ? (
+                        inc.images.map((img: string, idx: number) => (
+                          <div 
+                            key={idx}
+                            className="rounded-xl overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in relative" 
+                            onClick={() => setLightboxImage(`${API_URL}${img}`)}
+                          >
+                            <img src={`${API_URL}${img}`} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" alt="" />
+                          </div>
+                        ))
+                      ) : (
+                        inc.image && (
+                          <div className="rounded-xl overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in relative" onClick={() => setLightboxImage(`${API_URL}${inc.image}`)}>
+                            <img src={`${API_URL}${inc.image}`} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" alt="" />
+                          </div>
+                        )
+                      )}
                     </div>
                   )}
 
@@ -490,21 +521,44 @@ const FlaggerDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Evidence Photo</label>
-                <div 
-                  onClick={() => document.getElementById('reportPhoto')?.click()}
-                  className="w-full aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all group overflow-hidden relative"
-                >
-                  {reportPreview ? (
-                    <img src={reportPreview} className="w-full h-full object-cover" alt="Preview" />
-                  ) : (
-                    <>
-                      <Camera className="w-10 h-10 text-slate-600 mb-4 group-hover:scale-110 transition-transform" />
-                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Capture or Upload Photo</span>
-                    </>
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Evidence Photos (Up to 5)</label>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {reportPreviews.map((preview, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 group">
+                      <img src={preview} className="w-full h-full object-cover" alt="Preview" />
+                      <button 
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {reportFiles.length < 5 && (
+                    <div className="contents">
+                      <div 
+                        onClick={() => document.getElementById('reportPhoto')?.click()}
+                        className="aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all group"
+                      >
+                        <Upload className="w-6 h-6 text-slate-600 mb-2 group-hover:scale-110 transition-transform" />
+                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Upload</span>
+                        <input type="file" id="reportPhoto" onChange={handleFileChange} className="hidden" accept="image/*" multiple />
+                      </div>
+
+                      <div 
+                        onClick={() => document.getElementById('cameraPhoto')?.click()}
+                        className="aspect-square bg-indigo-500/10 border-2 border-dashed border-indigo-500/20 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/20 transition-all group"
+                      >
+                        <Camera className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                        <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest text-center">Capture<br/>Photo</span>
+                        <input type="file" id="cameraPhoto" onChange={handleFileChange} className="hidden" accept="image/*" capture="environment" />
+                      </div>
+                    </div>
                   )}
-                  <input type="file" id="reportPhoto" onChange={handleFileChange} className="hidden" accept="image/*" />
                 </div>
               </div>
 
@@ -592,6 +646,7 @@ const FlaggerDashboard: React.FC = () => {
             date={new Date(inc.createdAt).toLocaleDateString()}
             location={inc.location}
             image={inc.image}
+            images={inc.images}
             onImageClick={setLightboxImage}
           />
         ))}

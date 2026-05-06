@@ -16,9 +16,11 @@ interface IncidentCardProps {
     y?: number;
   };
   image?: string;
+  images?: string[];
   resolution?: {
     notes: string;
-    image: string;
+    image?: string;
+    images?: string[];
     resolvedAt: string;
   };
   onDelete?: (id: string) => void;
@@ -27,7 +29,7 @@ interface IncidentCardProps {
 }
 
 const IncidentCard: React.FC<IncidentCardProps> = ({ 
-  id, title, description, severity, status, date, location, resolution, image, onDelete, onEdit, onImageClick 
+  id, title, description, severity, status, date, location, resolution, image, images, onDelete, onEdit, onImageClick 
 }) => {
   const severityColors = {
     High: 'bg-red-500/10 text-red-400 border-red-500/20',
@@ -118,22 +120,48 @@ const IncidentCard: React.FC<IncidentCardProps> = ({
         </div>
       )}
 
-      {image && (
-        <div 
-          className="mb-6 relative rounded-2xl overflow-hidden aspect-video border border-white/10 group/evidence cursor-zoom-in"
-          onClick={(e) => {
-            e.stopPropagation();
-            onImageClick?.(`${API_URL}${image}`);
-          }}
-        >
-          <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-black/50 backdrop-blur-md rounded-lg text-[9px] font-black text-white uppercase tracking-widest border border-white/10">
-            Evidence Photo
-          </div>
-          <img 
-            src={`${API_URL}${image}`} 
-            alt="Evidence" 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover/evidence:scale-110"
-          />
+      {(image || (images && images.length > 0)) && (
+        <div className="mb-6 space-y-2">
+           <div className="flex items-center justify-between px-1">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Evidence Photos</span>
+              <span className="text-[10px] font-bold text-slate-600">{images ? images.length : 1} File(s)</span>
+           </div>
+           <div className={`grid gap-2 ${images && images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              {images && images.length > 0 ? (
+                images.map((img, idx) => (
+                  <div 
+                    key={idx}
+                    className="relative rounded-2xl overflow-hidden aspect-video border border-white/10 group/evidence cursor-zoom-in"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onImageClick?.(`${API_URL}${img}`);
+                    }}
+                  >
+                    <img 
+                      src={`${API_URL}${img}`} 
+                      alt="Evidence" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover/evidence:scale-110"
+                    />
+                  </div>
+                ))
+              ) : (
+                image && (
+                  <div 
+                    className="relative rounded-2xl overflow-hidden aspect-video border border-white/10 group/evidence cursor-zoom-in"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onImageClick?.(`${API_URL}${image}`);
+                    }}
+                  >
+                    <img 
+                      src={`${API_URL}${image}`} 
+                      alt="Evidence" 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover/evidence:scale-110"
+                    />
+                  </div>
+                )
+              )}
+           </div>
         </div>
       )}
 
@@ -143,20 +171,42 @@ const IncidentCard: React.FC<IncidentCardProps> = ({
              <CheckCircle2 className="w-3 h-3" /> Resolution Proof
           </div>
           <p className="text-xs text-slate-300 italic">"{resolution.notes}"</p>
-          {resolution.image && (
-            <div 
-              className="relative rounded-lg overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in"
-              onClick={(e) => {
-                e.stopPropagation();
-                onImageClick?.(`${API_URL}${resolution.image}`);
-              }}
-            >
-              <img 
-                src={`${API_URL}${resolution.image}`} 
-                alt="Resolution Proof" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
+          {(resolution.image || (resolution.images && resolution.images.length > 0)) && (
+            <div className={`grid gap-2 ${resolution.images && resolution.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              {resolution.images && resolution.images.length > 0 ? (
+                resolution.images.map((img, idx) => (
+                  <div 
+                    key={idx}
+                    className="relative rounded-lg overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onImageClick?.(`${API_URL}${img}`);
+                    }}
+                  >
+                    <img 
+                      src={`${API_URL}${img}`} 
+                      alt={`Resolution Proof ${idx + 1}`} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
+                    />
+                  </div>
+                ))
+              ) : (
+                resolution.image && (
+                  <div 
+                    className="relative rounded-lg overflow-hidden aspect-video border border-white/10 group/img cursor-zoom-in"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onImageClick?.(`${API_URL}${resolution.image}`);
+                    }}
+                  >
+                    <img 
+                      src={`${API_URL}${resolution.image}`} 
+                      alt="Resolution Proof" 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
+                    />
+                  </div>
+                )
+              )}
             </div>
           )}
         </div>

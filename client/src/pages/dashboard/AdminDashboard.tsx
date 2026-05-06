@@ -29,11 +29,13 @@ import {
   Key,
   ShieldCheck
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 type ViewType = 'LIST' | 'DETAIL';
 type AssignTab = 'EXISTING' | 'NEW';
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [view, setView] = useState<ViewType>('LIST');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -278,10 +280,12 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDownloadQR = (qrData: string, subsiteName: string) => {
+  const handleDownloadQR = (qrData: string, subsiteName: string, siteName: string) => {
     const link = document.createElement('a');
     link.href = qrData;
-    link.download = `QR-${subsiteName.replace(/\s+/g, '-').toLowerCase()}.png`;
+    const cleanSiteName = siteName.replace(/\s+/g, '-').toLowerCase();
+    const cleanSubsiteName = subsiteName.replace(/\s+/g, '-').toLowerCase();
+    link.download = `QR-${cleanSiteName}-${cleanSubsiteName}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -485,6 +489,14 @@ const AdminDashboard = () => {
                              >
                                <Edit2 className="w-3.5 h-3.5" />
                              </button>
+                             {user?.role === 'site_admin' && (
+                               <button 
+                                 onClick={() => handleDeleteSubsite(sub._id)}
+                                 className="text-slate-500 hover:text-rose-500 p-1"
+                               >
+                                 <Trash2 className="w-3.5 h-3.5" />
+                               </button>
+                             )}
                           </div>
                         </div>
                         <p className="text-slate-500 text-xs mt-1 line-clamp-2">{sub.description}</p>
@@ -525,7 +537,7 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <button 
-                        onClick={() => handleDownloadQR(sub.qrCode, sub.name)}
+                        onClick={() => handleDownloadQR(sub.qrCode, sub.name, selectedSite?.name || 'Site')}
                         className="p-2 text-indigo-400 hover:text-white transition-colors"
                       >
                         <Download className="w-5 h-5" />
@@ -597,9 +609,18 @@ const AdminDashboard = () => {
 
             {/* Column 3: Hazards */}
             <div className="space-y-8">
-              <h2 className="text-2xl font-black text-white flex items-center gap-3 uppercase tracking-tight">
-                <AlertTriangle className="text-rose-500 w-6 h-6" /> Safety Hazards
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-black text-white flex items-center gap-3 uppercase tracking-tight">
+                  <AlertTriangle className="text-rose-500 w-6 h-6" /> Safety Hazards
+                </h2>
+                <button 
+                  onClick={() => selectedSite && fetchSiteDetails(selectedSite._id)}
+                  className="p-2 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
+                  title="Refresh Hazards"
+                >
+                  <Activity className="w-4 h-4" />
+                </button>
+              </div>
               <div className="space-y-6">
                 {incidents.map((inc) => (
                   <div key={inc._id} className="bg-white/5 border border-white/10 rounded-[2rem] p-6 hover:border-rose-500/30 transition-all group">
@@ -631,10 +652,21 @@ const AdminDashboard = () => {
                     <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed mb-4 bg-slate-950/30 p-3 rounded-xl border border-white/5">{inc.description}</p>
                     
                     {/* Incident Image */}
-                    {inc.image && (
-                      <div className="mb-4 rounded-xl overflow-hidden aspect-video border border-white/10 group/img relative cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${inc.image}`)}>
-                        <img src={`${API_URL}${inc.image}`} alt="Incident" className="w-full h-full object-cover transition-transform group-hover/img:scale-110" />
-                        <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[8px] font-black text-white uppercase tracking-widest">Incident Photo</div>
+                    {(inc.image || (inc.images && inc.images.length > 0)) && (
+                      <div className={`grid gap-2 mb-4 ${inc.images && inc.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        {inc.images && inc.images.length > 0 ? (
+                          inc.images.map((img: string, idx: number) => (
+                            <div key={idx} className="rounded-xl overflow-hidden aspect-video border border-white/10 group/img relative cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${img}`)}>
+                              <img src={`${API_URL}${img}`} alt={`Incident ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" />
+                            </div>
+                          ))
+                        ) : (
+                          inc.image && (
+                            <div className="rounded-xl overflow-hidden aspect-video border border-white/10 group/img relative cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${inc.image}`)}>
+                              <img src={`${API_URL}${inc.image}`} alt="Incident" className="w-full h-full object-cover transition-transform group-hover/img:scale-110" />
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
 
@@ -645,9 +677,21 @@ const AdminDashboard = () => {
                           <CheckCircle className="w-3 h-3" /> Resolution Proof
                         </div>
                         <p className="text-xs text-slate-300 italic">"{inc.resolution.notes}"</p>
-                        {inc.resolution.image && (
-                          <div className="rounded-lg overflow-hidden aspect-video border border-white/5 cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${inc.resolution.image}`)}>
-                            <img src={`${API_URL}${inc.resolution.image}`} alt="Resolution" className="w-full h-full object-cover" />
+                        {(inc.resolution.image || (inc.resolution.images && inc.resolution.images.length > 0)) && (
+                          <div className={`grid gap-2 ${inc.resolution.images && inc.resolution.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                            {inc.resolution.images && inc.resolution.images.length > 0 ? (
+                              inc.resolution.images.map((img: string, idx: number) => (
+                                <div key={idx} className="rounded-lg overflow-hidden aspect-video border border-white/5 cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${img}`)}>
+                                  <img src={`${API_URL}${img}`} alt={`Resolution ${idx + 1}`} className="w-full h-full object-cover" />
+                                </div>
+                              ))
+                            ) : (
+                              inc.resolution.image && (
+                                <div className="rounded-lg overflow-hidden aspect-video border border-white/5 cursor-zoom-in" onClick={() => setLightboxImage(`${API_URL}${inc.resolution.image}`)}>
+                                  <img src={`${API_URL}${inc.resolution.image}`} alt="Resolution" className="w-full h-full object-cover" />
+                                </div>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
@@ -835,6 +879,7 @@ const AdminDashboard = () => {
                     <option value="online_verifier" className="bg-slate-900 text-white">Online Verifier</option>
                     <option value="ground_verifier" className="bg-slate-900 text-white">Ground Verifier</option>
                     <option value="resolver" className="bg-slate-900 text-white">Resolver</option>
+                    <option value="compliance_officer" className="bg-slate-900 text-white">Compliance Officer</option>
                   </select>
                 </div>
 
@@ -914,6 +959,7 @@ const AdminDashboard = () => {
                       <option value="online_verifier" className="bg-slate-900 text-white">Online Verifier</option>
                       <option value="ground_verifier" className="bg-slate-900 text-white">Ground Verifier</option>
                       <option value="resolver" className="bg-slate-900 text-white">Resolver</option>
+                      <option value="compliance_officer" className="bg-slate-900 text-white">Compliance Officer</option>
                     </select>
                   </div>
                 </div>

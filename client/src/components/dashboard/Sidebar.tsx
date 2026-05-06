@@ -60,6 +60,11 @@ const Sidebar: React.FC = () => {
         { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/admin' },
         { icon: Settings, label: 'System Config', path: '/dashboard/admin' },
       ];
+    } else if (user.role === 'compliance_officer') {
+      return [
+        { icon: LayoutDashboard, label: 'Compliance', path: '/dashboard/compliance' },
+        { icon: Shield, label: 'Safety Audit', path: '/dashboard/security' },
+      ];
     }
     return [];
   };

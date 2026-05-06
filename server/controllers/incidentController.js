@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const Incident = require('../models/Incident');
 const Log = require('../models/Log');
+const Subsite = require('../models/Subsite');
 
 // @desc    Create new incident
 // @route   POST /api/incidents
@@ -7,7 +9,7 @@ const Log = require('../models/Log');
 const createIncident = async (req, res) => {
   try {
     const { title, description, severity, location, lat, lng, x, y, siteId, subsiteId } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : '';
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
     const { role, siteIds } = req.user;
     const userSiteIds = (siteIds || []).map(id => (id?._id || id)?.toString());
 
@@ -22,7 +24,7 @@ const createIncident = async (req, res) => {
       severity,
       siteId,
       subsiteId,
-      image,
+      images,
       location: {
         address: location,
         lat: Number(lat),
@@ -51,15 +53,25 @@ const createIncident = async (req, res) => {
 // @access  Private
 const getSubsiteIncidents = async (req, res) => {
   try {
+    const { subsiteId } = req.params;
     const { role, siteIds } = req.user;
     const userSiteIds = (siteIds || []).map(id => (id?._id || id)?.toString());
 
-    const subsite = await require('../models/Subsite').findById(req.params.subsiteId);
-    if (role !== 'super_admin' && userSiteIds.length > 0 && subsite && !userSiteIds.includes(subsite.siteId.toString())) {
+    if (!mongoose.Types.ObjectId.isValid(subsiteId)) {
+      return res.status(400).json({ message: 'Invalid subsite ID' });
+    }
+
+    const subsite = await Subsite.findById(subsiteId);
+    
+    if (!subsite) {
+      return res.status(404).json({ message: 'Subsite not found' });
+    }
+
+    if (role !== 'super_admin' && userSiteIds.length > 0 && !userSiteIds.includes(subsite.siteId.toString())) {
       return res.status(403).json({ message: 'Unauthorized access to this sub-zone' });
     }
 
-    const incidents = await Incident.find({ subsiteId: req.params.subsiteId }).sort({ createdAt: -1 });
+    const incidents = await Incident.find({ subsiteId: new mongoose.Types.ObjectId(subsiteId) }).sort({ createdAt: -1 });
     res.json(incidents);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -250,21 +262,44 @@ const verifyIncident = async (req, res) => {
 // @access  Private
 const getAllIncidents = async (req, res) => {
   try {
-    const { siteId: querySiteId } = req.query;
+    const { siteId: querySiteId, status } = req.query;
     const { role, siteIds } = req.user;
     const userSiteIds = (siteIds || []).map(id => (id?._id || id)?.toString());
-    let filter = querySiteId ? { siteId: querySiteId } : {};
+    let filter = {};
     
-    // Restriction
+    if (status) {
+      filter.status = status;
+    }
+    
     if (role !== 'super_admin') {
       if (userSiteIds.length === 0) return res.json([]);
-      filter.siteId = { $in: userSiteIds };
+      
+      if (querySiteId) {
+        if (!userSiteIds.includes(querySiteId)) {
+          return res.status(403).json({ message: 'Unauthorized: You do not have access to this site' });
+        }
+        filter.siteId = querySiteId;
+      } else {
+        filter.siteId = { $in: userSiteIds };
+      }
+    } else if (querySiteId) {
+      filter.siteId = querySiteId;
+    }
+
+    // Ensure siteId is treated as ObjectId if it's a string
+    if (filter.siteId && typeof filter.siteId === 'string' && mongoose.Types.ObjectId.isValid(filter.siteId)) {
+      filter.siteId = new mongoose.Types.ObjectId(filter.siteId);
+    } else if (filter.siteId && filter.siteId.$in) {
+      filter.siteId.$in = filter.siteId.$in.map(id => 
+        (typeof id === 'string' && mongoose.Types.ObjectId.isValid(id)) ? new mongoose.Types.ObjectId(id) : id
+      );
     }
 
     const incidents = await Incident.find(filter)
       .populate('siteId', 'name')
       .populate('subsiteId', 'name mapImage')
       .populate('createdBy', 'name email')
+      .populate('complianceReview.reviewedBy', 'name')
       .sort({ createdAt: -1 });
 
     const transformed = incidents.map(inc => ({
@@ -319,15 +354,15 @@ const getVerifiedIncidents = async (req, res) => {
 const resolveIncident = async (req, res) => {
   try {
     const { notes } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : '';
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
     const incident = await Incident.findByIdAndUpdate(
       req.params.id,
       { 
-        status: 'resolved',
+        status: 'compliance_review',
         resolution: {
           notes,
-          image,
+          images,
           resolvedAt: new Date()
         }
       },
@@ -339,7 +374,7 @@ const resolveIncident = async (req, res) => {
     // Log the action
     await Log.create({
       user: req.user._id,
-      action: 'Resolved with proof',
+      action: 'Resolved - Sent for Compliance Review',
       incident: incident._id
     });
 
@@ -357,8 +392,8 @@ const updateIncident = async (req, res) => {
     const { title, description, severity, locationName } = req.body;
     const updateData = { title, description, severity, 'location.address': locationName };
     
-    if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map(file => `/uploads/${file.filename}`);
     }
 
     const incident = await Incident.findOneAndUpdate(
@@ -399,6 +434,97 @@ const deleteIncident = async (req, res) => {
   }
 };
 
+// @desc    Get incidents for compliance review
+// @route   GET /api/incidents/compliance
+// @access  Private
+const getComplianceIncidents = async (req, res) => {
+  try {
+    const incidents = await Incident.find({ status: 'compliance_review' })
+      .populate('siteId', 'name')
+      .populate('subsiteId', 'name mapImage')
+      .populate('createdBy', 'name')
+      .sort({ updatedAt: -1 });
+
+    const transformed = incidents.map(inc => ({
+      ...inc._doc,
+      siteName: inc.siteId?.name,
+      subsiteName: inc.subsiteId?.name,
+      subsiteMapImage: inc.subsiteId?.mapImage
+    }));
+
+    res.json(transformed);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Approve incident closure (Compliance Officer)
+// @route   PUT /api/incidents/:id/compliance-approve
+// @access  Private
+const approveClosure = async (req, res) => {
+  try {
+    const { notes } = req.body;
+    const incident = await Incident.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status: 'closed',
+        complianceReview: {
+          notes,
+          reviewedBy: req.user._id,
+          reviewedAt: new Date()
+        },
+        closedAt: new Date()
+      },
+      { new: true }
+    );
+
+    if (!incident) return res.status(404).json({ message: 'Incident not found' });
+
+    await Log.create({
+      user: req.user._id,
+      action: 'Closed - Compliance Approved',
+      incident: incident._id
+    });
+
+    res.json(incident);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// @desc    Request re-inspection (Compliance Officer)
+// @route   PUT /api/incidents/:id/reinspect
+// @access  Private
+const reinspectIncident = async (req, res) => {
+  try {
+    const { notes } = req.body;
+    const incident = await Incident.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status: 'verified',
+        complianceReview: {
+          notes,
+          reviewedBy: req.user._id,
+          reviewedAt: new Date()
+        }
+      },
+      { new: true }
+    );
+
+    if (!incident) return res.status(404).json({ message: 'Incident not found' });
+
+    await Log.create({
+      user: req.user._id,
+      action: 'Re-inspection Required',
+      incident: incident._id
+    });
+
+    res.json(incident);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createIncident,
   getMyIncidents,
@@ -410,8 +536,11 @@ module.exports = {
   getAllIncidents,
   getVerifiedIncidents,
   resolveIncident,
-  getSubsiteIncidents,
   updateIncident,
   deleteIncident,
+  getComplianceIncidents,
+  approveClosure,
+  reinspectIncident,
+  getSubsiteIncidents,
   escalateIncident
 };
