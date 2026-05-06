@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  AlertTriangle, 
-  ClipboardList, 
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  ClipboardList,
   Shield,
   ChevronRight,
   Settings,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Users
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -20,11 +22,10 @@ interface SidebarItemProps {
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, path, active }) => (
   <Link
     to={path}
-    className={`group flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 ${
-      active 
-        ? 'bg-gradient-to-r from-blue-600/20 to-indigo-600/20 text-white border border-white/10 shadow-lg shadow-blue-500/10' 
+    className={`group flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 ${active
+        ? 'bg-gradient-to-r from-blue-600/20 to-indigo-600/20 text-white border border-white/10 shadow-lg shadow-blue-500/10'
         : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-    }`}
+      }`}
   >
     <div className="flex items-center gap-3">
       <Icon className={`w-5 h-5 transition-colors duration-300 ${active ? 'text-blue-400' : 'group-hover:text-blue-400'}`} />
@@ -36,9 +37,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, path, acti
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user } = useAuth(); // Use reactive user from context
 
   const getMenuItems = () => {
+    if (!user || !user.role) return [];
+    
     if (user.role === 'flagger') {
       return [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard/flagger' },
@@ -56,10 +59,16 @@ const Sidebar: React.FC = () => {
         { icon: HistoryIcon, label: 'Audit Log', path: '/dashboard/security' },
       ];
     } else if (user.role === 'site_admin' || user.role === 'super_admin') {
-      return [
+      const items = [
         { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/admin' },
         { icon: Settings, label: 'System Config', path: '/dashboard/admin' },
       ];
+
+      if (user.role === 'super_admin') {
+        items.push({ icon: Users, label: 'User Management', path: '/dashboard/users' });
+      }
+
+      return items;
     } else if (user.role === 'compliance_officer') {
       return [
         { icon: LayoutDashboard, label: 'Compliance', path: '/dashboard/compliance' },
@@ -90,7 +99,7 @@ const Sidebar: React.FC = () => {
         </div>
         {menuItems.map((item) => (
           <SidebarItem
-            key={item.path}
+            key={`${item.path}-${item.label}`}
             icon={item.icon}
             label={item.label}
             path={item.path}

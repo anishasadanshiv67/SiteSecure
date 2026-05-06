@@ -29,6 +29,7 @@ import {
   Key,
   ShieldCheck
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 
 type ViewType = 'LIST' | 'DETAIL';
@@ -983,31 +984,49 @@ const AdminDashboard = () => {
 };
 
 // Reusable Components
-const Modal = ({ title, children, onClose, onSubmit, loading, submitText }: any) => (
-  <div className="fixed inset-0 z-50 overflow-y-auto custom-scrollbar">
-    <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md" onClick={onClose}></div>
-    <div className="flex min-h-screen items-start justify-center p-4 sm:p-6 md:pt-20 pb-20">
-      <div className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl animate-scale-in flex flex-col">
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between shrink-0 bg-slate-900 rounded-t-[2.5rem]">
+const Modal = ({ title, children, onClose, onSubmit, loading, submitText }: any) => {
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl animate-fade-in" 
+        onClick={onClose}
+      ></div>
+      
+      {/* Modal Content */}
+      <div className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-xl max-h-[90vh] shadow-2xl animate-scale-in flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between shrink-0 bg-slate-900/50 backdrop-blur-md">
           <h3 className="text-xl font-black text-white uppercase tracking-tight">{title}</h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl text-slate-500 hover:text-white transition-all"><X className="w-5 h-5" /></button>
-        </div>
-        <form onSubmit={onSubmit} className="p-8 space-y-6">
-          <div className="space-y-6">
-            {children}
-          </div>
           <button 
-            type="submit" 
-            disabled={loading} 
-            className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
+            onClick={onClose} 
+            className="p-2 hover:bg-white/5 rounded-xl text-slate-500 hover:text-white transition-all"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : submitText}
+            <X className="w-5 h-5" />
           </button>
-        </form>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div className="space-y-6">
+              {children}
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 disabled:opacity-50 mt-8"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : submitText}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </div>
-);
+    </div>,
+    document.body
+  );
+};
 
 const FormInput = ({ label, value, onChange, type = 'text', placeholder, Icon }: any) => (
   <div className="space-y-2">

@@ -10,6 +10,7 @@ import SecurityLog from './pages/dashboard/SecurityLog';
 import ResolverDashboard from './pages/dashboard/ResolverDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
 import ComplianceDashboard from './pages/compliance/ComplianceDashboard';
+import UserManagement from './pages/dashboard/UserManagement';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -88,6 +89,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['compliance_officer']}>
                 <ComplianceDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/users" 
+            element={
+              <ProtectedRoute allowedRoles={['super_admin']}>
+                <UserManagement />
               </ProtectedRoute>
             } 
           />

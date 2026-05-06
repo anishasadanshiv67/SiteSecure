@@ -6,7 +6,10 @@ const bcrypt = require('bcryptjs');
 // @access  Private/Admin
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await User.find()
+      .select('-password')
+      .populate('siteIds', 'name location') // Populate site details
+      .sort({ createdAt: -1 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -76,7 +79,7 @@ const bulkAssignUsersToSite = async (req, res) => {
 // @access  Private/Admin
 const createUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, siteIds } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -94,7 +97,8 @@ const createUser = async (req, res) => {
       email,
       password,
       role,
-      status: 'active'
+      status: 'active',
+      siteIds: siteIds || []
     });
 
     res.status(201).json({
