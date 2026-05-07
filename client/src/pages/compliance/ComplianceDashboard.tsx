@@ -24,7 +24,8 @@ import {
   BarChart3,
   CheckSquare,
   Users,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000';
@@ -44,6 +45,9 @@ const ComplianceDashboard = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCreateDriveModal, setShowCreateDriveModal] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [complianceNotes, setComplianceNotes] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [driveTasks, setDriveTasks] = useState<any[]>([]);
 
   useEffect(() => {
     if (view === 'QUEUE') {
@@ -103,6 +107,18 @@ const ComplianceDashboard = () => {
       setInspectionView('SUMMARY');
     } catch (err: any) {
       setError('Failed to fetch summary');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDriveTasks = async (driveId: string) => {
+    try {
+      setLoading(true);
+      const { data } = await API.get(`/inspections/drives/${driveId}/tasks`);
+      setDriveTasks(data);
+    } catch (err: any) {
+      setError('Failed to fetch drive tasks');
     } finally {
       setLoading(false);
     }
@@ -185,7 +201,7 @@ const ComplianceDashboard = () => {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {inspectionDrives.map((drive) => (
-                  <tr key={drive._id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedDrive(drive); setInspectionView('DETAILS'); }}>
+                  <tr key={drive._id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedDrive(drive); setInspectionView('DETAILS'); fetchDriveTasks(drive._id); }}>
                     <td className="px-8 py-6">
                       <div>
                         <p className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors">{drive.title}</p>
@@ -369,12 +385,66 @@ const ComplianceDashboard = () => {
                 </tr>
              </thead>
              <tbody className="divide-y divide-white/5">
-                {/* We'll need an endpoint to fetch tasks for a specific drive if we want real data here, 
-                   but for now we can assume it's integrated or we fetch it when selecting drive. 
-                   For simplicity, I'll update the fetchInspectionData to include drive tasks or just reuse summary if filtered.
-                */}
-                <tr className="bg-white/5 border-b border-white/5"><td colSpan={5} className="px-8 py-4 text-center text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Drive Progress Tracking Enabled</td></tr>
-             </tbody>
+                {loading ? (
+                   <tr>
+                      <td colSpan={5} className="px-8 py-10 text-center">
+                         <Loader2 className="w-6 h-6 text-indigo-500 animate-spin mx-auto mb-2" />
+                         <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Loading Tasks...</p>
+                      </td>
+                   </tr>
+                ) : driveTasks.length === 0 ? (
+                   <tr>
+                      <td colSpan={5} className="px-8 py-10 text-center">
+                         <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">No tasks found for this drive</p>
+                      </td>
+                   </tr>
+                ) : (
+                   driveTasks.map((task) => (
+                      <tr key={task._id} className="group hover:bg-white/[0.01] transition-colors">
+                         <td className="px-8 py-6">
+                            <p className="text-white text-xs font-bold">{task.subsiteId?.name}</p>
+                            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-1">Zone Audit</p>
+                         </td>
+                         <td className="px-8 py-6">
+                            <div className="flex items-center gap-2">
+                               <Users className="w-3.5 h-3.5 text-slate-500" />
+                               <span className="text-slate-300 text-xs font-bold">{task.assignedTo?.name}</span>
+                            </div>
+                         </td>
+                         <td className="px-8 py-6">
+                            {task.status === 'completed' ? (
+                               <div className="space-y-1">
+                                  <p className="text-slate-300 text-[11px] italic">"{task.remarks || 'No remarks'}"</p>
+                                  <div className="flex items-center gap-2">
+                                     <span className={`px-1.5 py-0.5 rounded-[4px] text-[8px] font-black uppercase ${task.issueFound ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                                        {task.issueFound ? 'Issue Detected' : 'Clear'}
+                                     </span>
+                                     {task.linkedIncidentId && (
+                                        <span className="text-[8px] font-black text-indigo-400 uppercase">INC-{task.linkedIncidentId._id.slice(-6)}</span>
+                                     )}
+                                  </div>
+                               </div>
+                            ) : (
+                               <span className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Pending Sync</span>
+                            )}
+                         </td>
+                         <td className="px-8 py-6">
+                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                               task.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                               'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                            }`}>
+                               {task.status}
+                            </span>
+                         </td>
+                         <td className="px-8 py-6">
+                            <p className="text-slate-400 text-[10px] font-mono">
+                               {task.completedAt ? new Date(task.completedAt).toLocaleString() : '---'}
+                            </p>
+                         </td>
+                      </tr>
+                   ))
+                )}
+              </tbody>
           </table>
        </div>
     </div>
@@ -619,11 +689,11 @@ const ComplianceDashboard = () => {
       {/* Review Modal */}
       {showDetailModal && selectedIncident && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 sm:p-12 animate-in fade-in duration-300">
-           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" onClick={() => !actionLoading && setShowDetailModal(false)} />
+           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-lg" onClick={() => !actionLoading && setShowDetailModal(false)} />
            
-           <div className="relative bg-slate-900 border border-white/10 w-full max-w-5xl h-full max-h-[90vh] rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col">
+           <div className="relative bg-slate-900 border border-white/10 w-full max-w-[95vw] lg:max-w-[1300px] h-[85vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col scale-100 animate-in zoom-in-95 duration-300">
               {/* Modal Header */}
-              <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <div className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                  <div className="flex items-center gap-6">
                     <div className="p-4 bg-indigo-500/10 rounded-2xl">
                        <ShieldAlert className="w-8 h-8 text-indigo-400" />
@@ -633,19 +703,19 @@ const ComplianceDashboard = () => {
                           <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-md">Safety Review</span>
                           <span className="text-slate-600 font-mono text-[10px]">INC-{selectedIncident._id.slice(-8)}</span>
                        </div>
-                       <h2 className="text-2xl font-black text-white tracking-tight">{selectedIncident.title}</h2>
+                       <h2 className="text-4xl font-black text-white tracking-tight uppercase">{selectedIncident.title}</h2>
                     </div>
                  </div>
                  <button 
                    onClick={() => setShowDetailModal(false)}
-                   className="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
+                   className="p-4 text-slate-400 hover:text-white hover:bg-white/10 rounded-2xl transition-all cursor-pointer z-50"
                  >
-                    <X className="w-6 h-6" />
+                    <X className="w-8 h-8" />
                  </button>
               </div>
 
               {/* Modal Body */}
-              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     
                     {/* Left: Info & Timeline */}
@@ -697,15 +767,16 @@ const ComplianceDashboard = () => {
                     <div className="space-y-8">
                        {view === 'QUEUE' ? (
                         <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 space-y-6">
-                           <div className="flex items-center gap-3 text-indigo-400">
-                              <MessageSquare className="w-5 h-5" />
-                              <h4 className="text-sm font-black uppercase tracking-widest">Officer Remarks</h4>
+                           <div className="flex items-center gap-4 text-indigo-400 mb-2">
+                              <MessageSquare className="w-6 h-6" />
+                              <h4 className="text-lg font-black uppercase tracking-widest">Officer Remarks</h4>
                            </div>
+                           <p className="text-[10px] text-slate-500 uppercase font-bold mb-4 tracking-wider">Final safety verification findings</p>
                            <textarea 
                              value={complianceNotes}
                              onChange={(e) => setComplianceNotes(e.target.value)}
                              placeholder="Detail your findings or reasons for re-inspection..."
-                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 min-h-[200px] transition-all"
+                             className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 min-h-[200px] transition-all shadow-inner"
                            />
                            
                            <div className="space-y-3 pt-4 border-t border-white/5">

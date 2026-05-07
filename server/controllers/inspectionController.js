@@ -198,3 +198,20 @@ exports.getWeeklySummary = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get tasks for a specific drive
+// @route   GET /api/inspections/drives/:id/tasks
+// @access  Private (Compliance Officer)
+exports.getDriveTasks = async (req, res) => {
+  try {
+    const tasks = await InspectionTask.find({ inspectionDriveId: req.params.id })
+      .populate('subsiteId', 'name')
+      .populate('assignedTo', 'name')
+      .populate('linkedIncidentId', 'title status severity')
+      .sort({ createdAt: 1 });
+
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
