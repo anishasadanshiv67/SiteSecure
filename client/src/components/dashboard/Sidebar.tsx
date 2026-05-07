@@ -58,17 +58,18 @@ const Sidebar: React.FC = () => {
         { icon: LayoutDashboard, label: 'Resolution', path: '/dashboard/resolution' },
         { icon: HistoryIcon, label: 'Audit Log', path: '/dashboard/security' },
       ];
-    } else if (user.role === 'site_admin' || user.role === 'super_admin') {
-      const items = [
+    } else if (user.role === 'site_admin') {
+      return [
         { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/admin' },
         { icon: Settings, label: 'System Config', path: '/dashboard/settings' },
       ];
-
-      if (user.role === 'super_admin') {
-        items.push({ icon: Users, label: 'User Management', path: '/dashboard/users' });
-      }
-
-      return items;
+    } else if (user.role === 'super_admin') {
+      return [
+        { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/superadmin' },
+        { icon: ClipboardList, label: 'Compliance Desk', path: '/dashboard/compliance' },
+        { icon: Users, label: 'User Management', path: '/dashboard/users' },
+        { icon: Settings, label: 'System Config', path: '/dashboard/settings' },
+      ];
     } else if (user.role === 'compliance_officer') {
       return [
         { icon: LayoutDashboard, label: 'Compliance', path: '/dashboard/compliance' },

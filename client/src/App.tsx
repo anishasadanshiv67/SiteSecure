@@ -9,6 +9,7 @@ import VerificationDashboard from './pages/dashboard/VerificationDashboard';
 import SecurityLog from './pages/dashboard/SecurityLog';
 import ResolverDashboard from './pages/dashboard/ResolverDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
+import SuperAdminControlPanel from './pages/dashboard/SuperAdminControlPanel';
 import ComplianceDashboard from './pages/compliance/ComplianceDashboard';
 import UserManagement from './pages/dashboard/UserManagement';
 import Settings from './pages/dashboard/Settings';
@@ -82,6 +83,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['site_admin', 'super_admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/superadmin" 
+            element={
+              <ProtectedRoute allowedRoles={['super_admin']}>
+                <SuperAdminControlPanel />
               </ProtectedRoute>
             } 
           />

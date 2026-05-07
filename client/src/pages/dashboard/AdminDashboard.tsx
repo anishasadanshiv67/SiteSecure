@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import API from '../../utils/api';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import SubsiteMap from '../../components/dashboard/SubsiteMap';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   Map as MapIcon, 
@@ -39,6 +40,7 @@ type AssignTab = 'EXISTING' | 'NEW';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [view, setView] = useState<ViewType>('LIST');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -77,6 +79,7 @@ const AdminDashboard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const userNavigatedBack = useRef(false);
 
   useEffect(() => {
     fetchSites();
@@ -84,9 +87,14 @@ const AdminDashboard = () => {
   }, []);
 
   // UX Improvement: If there's only one site assigned to this admin, skip to detail view
+  // (only on initial load, not when user explicitly presses back)
   useEffect(() => {
-    if (sites.length === 1 && view === 'LIST') {
+    if (sites.length === 1 && view === 'LIST' && !userNavigatedBack.current) {
       fetchSiteDetails(sites[0]._id);
+    }
+    // Reset flag after it's been consumed
+    if (userNavigatedBack.current && view === 'LIST') {
+      userNavigatedBack.current = false;
     }
   }, [sites, view]);
 
@@ -321,6 +329,16 @@ const AdminDashboard = () => {
     <DashboardLayout>
       {view === 'LIST' ? (
         <div className="animate-fade-in">
+          {/* Super admin back link */}
+          {user?.role === 'super_admin' && (
+            <button
+              onClick={() => navigate('/dashboard/superadmin')}
+              className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-black uppercase tracking-widest mb-8 group"
+            >
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Back to Control Panel
+            </button>
+          )}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-6">
             <div>
               <h1 className="text-4xl font-black text-white tracking-tight">Industrial Sites</h1>
@@ -405,7 +423,7 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <button 
-                onClick={() => setView('LIST')}
+                onClick={() => { userNavigatedBack.current = true; setView('LIST'); }}
                 className="p-4 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all hover:bg-white/10"
               >
                 <ChevronLeft className="w-6 h-6" />

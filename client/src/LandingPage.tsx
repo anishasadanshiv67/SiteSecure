@@ -40,8 +40,9 @@ const LandingPage = () => {
       case 'online_verifier':
       case 'ground_verifier': return '/dashboard/verification';
       case 'resolver': return '/dashboard/resolution';
-      case 'site_admin':
-      case 'super_admin': return '/dashboard/admin';
+      case 'site_admin': return '/dashboard/admin';
+      case 'super_admin': return '/dashboard/superadmin';
+      case 'compliance_officer': return '/dashboard/compliance';
       default: return '/login';
     }
   };
@@ -219,6 +220,14 @@ const LandingPage = () => {
               {user ? 'Go to Dashboard' : 'Get Started'}
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            {!user && (
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
+              >
+                <Lock className="h-4 w-4" /> Log In
+              </Link>
+            )}
             {user && (
               <Link 
                 to={getDashboardLink()}
