@@ -26,12 +26,14 @@ import {
   Lock,
   Zap,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = 'http://localhost:5000';
 
 const SuperAdminControlPanel = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(['dashboard', 'common']);
 
   const [loading, setLoading] = useState(true);
   const [sites, setSites] = useState<any[]>([]);
@@ -69,43 +71,43 @@ const SuperAdminControlPanel = () => {
     : 100;
 
   const roleDistribution = [
-    { role: 'flagger', label: 'Flaggers', color: 'indigo' },
-    { role: 'ground_verifier', label: 'Ground Verifiers', color: 'amber' },
-    { role: 'online_verifier', label: 'Online Verifiers', color: 'cyan' },
-    { role: 'resolver', label: 'Resolvers', color: 'emerald' },
-    { role: 'compliance_officer', label: 'Compliance Officers', color: 'purple' },
-    { role: 'site_admin', label: 'Site Admins', color: 'orange' },
+    { role: 'flagger', label: t('common:roles.flagger'), color: 'indigo' },
+    { role: 'ground_verifier', label: t('common:roles.ground_verifier'), color: 'amber' },
+    { role: 'online_verifier', label: t('common:roles.online_verifier'), color: 'cyan' },
+    { role: 'resolver', label: t('common:roles.resolver'), color: 'emerald' },
+    { role: 'compliance_officer', label: t('common:roles.compliance_officer'), color: 'purple' },
+    { role: 'site_admin', label: t('common:roles.site_admin'), color: 'orange' },
   ].map(r => ({ ...r, count: allUsers.filter(u => u.role === r.role).length }));
 
   const systemStats = [
     {
-      label: 'Total Facilities',
+      label: t('superAdmin.stats.totalFacilities'),
       value: sites.length,
-      sub: 'Across all regions',
+      sub: t('superAdmin.stats.facilitiesSubtext'),
       icon: Building2,
       color: 'indigo',
       glow: 'shadow-indigo-500/20',
     },
     {
-      label: 'Active Personnel',
+      label: t('superAdmin.stats.activePersonnel'),
       value: allUsers.length,
-      sub: `${roleDistribution.find(r => r.role === 'site_admin')?.count || 0} site admins`,
+      sub: t('superAdmin.stats.activePersonnelSubtext', { count: roleDistribution.find(r => r.role === 'site_admin')?.count || 0 }),
       icon: Users,
       color: 'violet',
       glow: 'shadow-violet-500/20',
     },
     {
-      label: 'Open Hazards',
+      label: t('superAdmin.stats.openHazards'),
       value: openIncidents.length,
-      sub: `${highSeverity.length} critical`,
+      sub: t('superAdmin.stats.critical', { count: highSeverity.length }),
       icon: AlertTriangle,
       color: highSeverity.length > 0 ? 'rose' : 'amber',
       glow: highSeverity.length > 0 ? 'shadow-rose-500/20' : 'shadow-amber-500/20',
     },
     {
-      label: 'Compliance Rate',
+      label: t('superAdmin.stats.complianceRate'),
       value: `${complianceRate}%`,
-      sub: `${closedIncidents.length} resolved total`,
+      sub: t('superAdmin.stats.resolvedTotal', { count: closedIncidents.length }),
       icon: ShieldCheck,
       color: complianceRate >= 80 ? 'emerald' : 'amber',
       glow: complianceRate >= 80 ? 'shadow-emerald-500/20' : 'shadow-amber-500/20',
@@ -114,29 +116,29 @@ const SuperAdminControlPanel = () => {
 
   const quickActions = [
     {
-      label: 'User Management',
-      desc: 'Create, assign & manage all system accounts',
+      label: t('superAdmin.quickActions.userManagement'),
+      desc: t('superAdmin.quickActions.userManagementDesc'),
       icon: UserPlus,
       path: '/dashboard/users',
       color: 'indigo',
     },
     {
-      label: 'System Config',
-      desc: 'Configure platform settings and policies',
+      label: t('superAdmin.quickActions.systemConfig'),
+      desc: t('superAdmin.quickActions.systemConfigDesc'),
       icon: Settings,
       path: '/dashboard/settings',
       color: 'slate',
     },
     {
-      label: 'Compliance Desk',
-      desc: 'Review site safety closures and inspections',
+      label: t('superAdmin.quickActions.complianceDesk'),
+      desc: t('superAdmin.quickActions.complianceDeskDesc'),
       icon: ClipboardList,
       path: '/dashboard/compliance',
       color: 'emerald',
     },
     {
-      label: 'Security Log',
-      desc: 'Full audit trail of all system events',
+      label: t('superAdmin.quickActions.securityLog'),
+      desc: t('superAdmin.quickActions.securityLogDesc'),
       icon: Eye,
       path: '/dashboard/security',
       color: 'purple',
@@ -145,7 +147,7 @@ const SuperAdminControlPanel = () => {
 
   if (loading) {
     return (
-      <DashboardLayout title="System Control Panel">
+      <DashboardLayout title={t('superAdmin.title')}>
         <div className="flex items-center justify-center py-40">
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
@@ -155,8 +157,8 @@ const SuperAdminControlPanel = () => {
               <div className="absolute -inset-2 rounded-[2rem] border border-indigo-500/20 animate-ping opacity-30" />
             </div>
             <div className="text-center">
-              <p className="text-white font-black text-lg uppercase tracking-widest">Initializing Control Panel</p>
-              <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">Fetching system data...</p>
+              <p className="text-white font-black text-lg uppercase tracking-widest">{t('common:loading')}</p>
+              <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">{t('common:toast.fetchError')}</p>
             </div>
           </div>
         </div>
@@ -165,7 +167,7 @@ const SuperAdminControlPanel = () => {
   }
 
   return (
-    <DashboardLayout title="System Control Panel">
+    <DashboardLayout title={t('superAdmin.title')}>
       <div className="space-y-10 animate-in fade-in duration-700">
 
         {/* ── Header ── */}
@@ -176,26 +178,26 @@ const SuperAdminControlPanel = () => {
                 <Globe className="w-6 h-6 text-white" />
               </div>
               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
-                Super Admin · Director Access
+                {t('superAdmin.badge')}
               </span>
             </div>
             <h1 className="text-5xl font-black text-white tracking-tight leading-none">
-              System Control<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Panel</span>
+              {t('superAdmin.title')}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{t('superAdmin.titleHighlight')}</span>
             </h1>
             <p className="text-slate-400 mt-3 text-sm max-w-lg">
-              Full institutional oversight — manage all facilities, personnel, and safety operations across the organization.
+              {t('superAdmin.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-emerald-400 text-xs font-black uppercase tracking-widest">System Online</span>
+              <span className="text-emerald-400 text-xs font-black uppercase tracking-widest">{t('common:systemOnline')}</span>
             </div>
             <button
               onClick={fetchSystemData}
               className="p-3 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-              title="Refresh"
+              title={t('common:refresh')}
             >
               <Activity className="w-5 h-5" />
             </button>
@@ -231,15 +233,15 @@ const SuperAdminControlPanel = () => {
             <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                  <Building2 className="w-5 h-5 text-indigo-400" /> Facility Registry
+                  <Building2 className="w-5 h-5 text-indigo-400" /> {t('superAdmin.facilityRegistry.title')}
                 </h2>
-                <p className="text-slate-500 text-xs mt-0.5">{sites.length} total facilities under management</p>
+                <p className="text-slate-500 text-xs mt-0.5">{t('superAdmin.facilityRegistry.subtitle', { count: sites.length })}</p>
               </div>
               <button
                 onClick={() => navigate('/dashboard/admin')}
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
               >
-                Manage <ExternalLink className="w-3 h-3" />
+                {t('superAdmin.facilityRegistry.manage')} <ExternalLink className="w-3 h-3" />
               </button>
             </div>
 
@@ -247,7 +249,7 @@ const SuperAdminControlPanel = () => {
               {sites.length === 0 ? (
                 <div className="py-20 text-center">
                   <Building2 className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                  <p className="text-slate-600 text-xs font-black uppercase tracking-widest">No facilities registered</p>
+                  <p className="text-slate-600 text-xs font-black uppercase tracking-widest">{t('superAdmin.facilityRegistry.noFacilities')}</p>
                 </div>
               ) : sites.map((site) => {
                 const siteIncidents = allIncidents.filter(i => i.siteId === site._id || i.siteName === site.name);
@@ -275,18 +277,18 @@ const SuperAdminControlPanel = () => {
                     <div className="flex items-center gap-6 shrink-0">
                       <div className="text-center">
                         <p className="text-white font-black text-lg">{sitePersonnel.length}</p>
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Staff</p>
+                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">{t('superAdmin.facilityRegistry.staff')}</p>
                       </div>
                       <div className="text-center">
                         <p className={`font-black text-lg ${siteOpen.length > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>{siteOpen.length}</p>
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Hazards</p>
+                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">{t('superAdmin.facilityRegistry.hazards')}</p>
                       </div>
                       <div className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                         siteOpen.length === 0
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                           : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                       }`}>
-                        {siteOpen.length === 0 ? 'Safe' : 'Active'}
+                        {siteOpen.length === 0 ? t('superAdmin.facilityRegistry.safe') : t('superAdmin.facilityRegistry.active')}
                       </div>
                       <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
                     </div>
@@ -303,7 +305,7 @@ const SuperAdminControlPanel = () => {
             <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] overflow-hidden">
               <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02]">
                 <h2 className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-400" /> Quick Actions
+                  <Zap className="w-4 h-4 text-amber-400" /> {t('superAdmin.quickActions.title')}
                 </h2>
               </div>
               <div className="p-4 space-y-2">
@@ -330,7 +332,7 @@ const SuperAdminControlPanel = () => {
             <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] overflow-hidden">
               <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02]">
                 <h2 className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-indigo-400" /> Personnel Breakdown
+                  <BarChart3 className="w-4 h-4 text-indigo-400" /> {t('superAdmin.personnelBreakdown')}
                 </h2>
               </div>
               <div className="p-6 space-y-4">
@@ -359,19 +361,19 @@ const SuperAdminControlPanel = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-indigo-400" /> System-Wide Incident Pipeline
+                <TrendingUp className="w-5 h-5 text-indigo-400" /> {t('superAdmin.incidentPipeline.title')}
               </h2>
-              <p className="text-slate-500 text-xs mt-1">Real-time status across all {sites.length} facilities</p>
+              <p className="text-slate-500 text-xs mt-1">{t('superAdmin.incidentPipeline.subtitle', { count: sites.length })}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { label: 'Flagged', status: 'open', color: 'amber' },
-              { label: 'Under Review', status: 'under_review', color: 'blue' },
-              { label: 'Verified', status: 'verified', color: 'indigo' },
-              { label: 'In Resolution', status: 'resolved', color: 'violet' },
-              { label: 'Compliance', status: 'compliance_review', color: 'purple' },
-              { label: 'Closed', status: 'closed', color: 'emerald' },
+              { label: t('superAdmin.incidentPipeline.flagged'), status: 'open', color: 'amber' },
+              { label: t('superAdmin.incidentPipeline.underReview'), status: 'under_review', color: 'blue' },
+              { label: t('superAdmin.incidentPipeline.verified'), status: 'verified', color: 'indigo' },
+              { label: t('superAdmin.incidentPipeline.inResolution'), status: 'resolved', color: 'violet' },
+              { label: t('superAdmin.incidentPipeline.compliance'), status: 'compliance_review', color: 'purple' },
+              { label: t('superAdmin.incidentPipeline.closed'), status: 'closed', color: 'emerald' },
             ].map((stage) => {
               const count = allIncidents.filter(i =>
                 stage.status === 'closed'

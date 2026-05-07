@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How it Works",
+    "login": "Log In",
+    "getStarted": "Get Started",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "badge": "Next-Gen Industrial Safety Platform",
+    "title1": "Site Reliability &",
+    "title2": "Safety Management",
+    "subtitle": "A premium, role-based platform for industrial safety. Streamline reporting, verification, and resolution of site hazards with real-time tracking and full accountability.",
+    "ctaPrimary": "Get Started",
+    "ctaLogin": "Log In",
+    "ctaDashboard": "Go to Dashboard",
+    "ctaView": "View Dashboard",
+    "badges": {
+      "iso": "ISO Certified",
+      "realtime": "Real-time Sync",
+      "multiRole": "Multi-role Access",
+      "cloud": "Secure Cloud"
+    }
+  },
+  "features": {
+    "heading": "Built for Industrial Excellence",
+    "subheading": "Everything you need to manage site safety in one centralized platform.",
+    "roleWorkflow": {
+      "title": "Role-Based Workflow",
+      "desc": "Customized access and dashboards for Flaggers, Verifiers, Resolvers, and Admins."
+    },
+    "realtime": {
+      "title": "Real-Time Incident Tracking",
+      "desc": "Monitor safety incidents and hazards as they happen with instant status updates."
+    },
+    "mapReporting": {
+      "title": "Map-Based Hazard Reporting",
+      "desc": "Pinpoint exact hazard locations on interactive maps for rapid on-ground response."
+    },
+    "auditLogs": {
+      "title": "Audit Logs & Accountability",
+      "desc": "Full history of actions taken on every incident, ensuring complete accountability."
+    },
+    "controlPanel": {
+      "title": "Admin Control Panel",
+      "desc": "Centralized management of users, site security logs, and system-wide configurations."
+    }
+  },
+  "howItWorks": {
+    "heading": "How SiteSecure Works",
+    "subheading": "Our structured workflow ensures every incident is handled with precision.",
+    "steps": {
+      "report": { "title": "Report Incident", "role": "Flagger", "desc": "Workers report hazards with photos and GPS location." },
+      "verify": { "title": "Verify", "role": "Verifier", "desc": "Online and ground teams verify the reported incident." },
+      "resolve": { "title": "Resolve", "role": "Resolver", "desc": "Assigned resolvers fix the hazard and submit proof." },
+      "close": { "title": "Close", "role": "Admin", "desc": "Admins review the resolution and formally close the case." }
+    }
+  },
+  "cta": {
+    "heading": "Ready to Secure Your Site?",
+    "subheading": "Join the network of professional safety teams using SiteSecure to eliminate hazards and optimize site reliability.",
+    "button": "Start Using SiteSecure"
+  },
+  "footer": {
+    "copyright": "SiteSecure. Site Reliability and Safety Management System.",
+    "links": {
+      "features": "Features",
+      "workflow": "Workflow",
+      "login": "Login"
+    }
+  }
+}

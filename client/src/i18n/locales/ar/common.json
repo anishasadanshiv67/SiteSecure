@@ -1,0 +1,57 @@
+{
+  "save": "حفظ",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "edit": "تعديل",
+  "back": "رجوع",
+  "submit": "إرسال",
+  "loading": "جارٍ التحميل...",
+  "error": "خطأ",
+  "success": "نجاح",
+  "search": "بحث",
+  "filter": "تصفية",
+  "refresh": "تحديث",
+  "close": "إغلاق",
+  "confirm": "تأكيد",
+  "yes": "نعم",
+  "no": "لا",
+  "unknown": "غير معروف",
+  "noData": "لا توجد بيانات متاحة",
+  "systemOnline": "النظام متصل",
+  "logout": "تسجيل الخروج",
+  "backToMenu": "العودة إلى القائمة",
+  "backToSites": "العودة إلى المواقع",
+  "backToControlPanel": "العودة إلى لوحة التحكم",
+  "roles": {
+    "super_admin": "المشرف الأعلى",
+    "site_admin": "مشرف الموقع",
+    "flagger": "المُبلِّغ",
+    "ground_verifier": "المدقق الميداني",
+    "online_verifier": "المدقق الإلكتروني",
+    "resolver": "المعالج",
+    "compliance_officer": "مسؤول الامتثال"
+  },
+  "severity": {
+    "low": "منخفض",
+    "medium": "متوسط",
+    "high": "عالٍ"
+  },
+  "status": {
+    "open": "مفتوح",
+    "under_review": "قيد المراجعة",
+    "verified": "تم التحقق",
+    "resolved": "تم الحل",
+    "closed": "مغلق",
+    "compliance_review": "مراجعة الامتثال",
+    "compliance_approved": "الامتثال موافق عليه"
+  },
+  "toast": {
+    "saveSuccess": "تم الحفظ بنجاح!",
+    "deleteSuccess": "تم الحذف بنجاح!",
+    "createSuccess": "تم الإنشاء بنجاح!",
+    "updateSuccess": "تم التحديث بنجاح!",
+    "fetchError": "فشل تحميل البيانات.",
+    "submitError": "فشل الإرسال. يرجى المحاولة مرة أخرى.",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من الاتصال."
+  }
+}

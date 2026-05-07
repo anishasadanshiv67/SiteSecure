@@ -11,6 +11,7 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -37,43 +38,44 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, path, acti
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth(); // Use reactive user from context
+  const { user } = useAuth();
+  const { t } = useTranslation(['dashboard']);
 
   const getMenuItems = () => {
     if (!user || !user.role) return [];
     
     if (user.role === 'flagger') {
       return [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard/flagger' },
-        { icon: AlertTriangle, label: 'Report Incident', path: '/dashboard/flagger/report' },
-        { icon: ClipboardList, label: 'My Reports', path: '/dashboard/flagger/my-reports' },
+        { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: '/dashboard/flagger' },
+        { icon: AlertTriangle, label: t('sidebar.reportIncident'), path: '/dashboard/flagger/report' },
+        { icon: ClipboardList, label: t('sidebar.myReports'), path: '/dashboard/flagger/my-reports' },
       ];
     } else if (user.role === 'online_verifier' || user.role === 'ground_verifier') {
       return [
-        { icon: LayoutDashboard, label: 'Verification', path: '/dashboard/verification' },
-        { icon: Shield, label: 'Security Log', path: '/dashboard/security' },
+        { icon: LayoutDashboard, label: t('sidebar.verification'), path: '/dashboard/verification' },
+        { icon: Shield, label: t('sidebar.securityLog'), path: '/dashboard/security' },
       ];
     } else if (user.role === 'resolver') {
       return [
-        { icon: LayoutDashboard, label: 'Resolution', path: '/dashboard/resolution' },
-        { icon: HistoryIcon, label: 'Audit Log', path: '/dashboard/security' },
+        { icon: LayoutDashboard, label: t('sidebar.resolution'), path: '/dashboard/resolution' },
+        { icon: HistoryIcon, label: t('sidebar.auditLog'), path: '/dashboard/security' },
       ];
     } else if (user.role === 'site_admin') {
       return [
-        { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/admin' },
-        { icon: Settings, label: 'System Config', path: '/dashboard/settings' },
+        { icon: LayoutDashboard, label: t('sidebar.controlPanel'), path: '/dashboard/admin' },
+        { icon: Settings, label: t('sidebar.systemConfig'), path: '/dashboard/settings' },
       ];
     } else if (user.role === 'super_admin') {
       return [
-        { icon: LayoutDashboard, label: 'Control Panel', path: '/dashboard/superadmin' },
-        { icon: ClipboardList, label: 'Compliance Desk', path: '/dashboard/compliance' },
-        { icon: Users, label: 'User Management', path: '/dashboard/users' },
-        { icon: Settings, label: 'System Config', path: '/dashboard/settings' },
+        { icon: LayoutDashboard, label: t('sidebar.controlPanel'), path: '/dashboard/superadmin' },
+        { icon: ClipboardList, label: t('sidebar.complianceDesk'), path: '/dashboard/compliance' },
+        { icon: Users, label: t('sidebar.userManagement'), path: '/dashboard/users' },
+        { icon: Settings, label: t('sidebar.systemConfig'), path: '/dashboard/settings' },
       ];
     } else if (user.role === 'compliance_officer') {
       return [
-        { icon: LayoutDashboard, label: 'Compliance', path: '/dashboard/compliance' },
-        { icon: Shield, label: 'Safety Audit', path: '/dashboard/security' },
+        { icon: LayoutDashboard, label: t('sidebar.compliance'), path: '/dashboard/compliance' },
+        { icon: Shield, label: t('sidebar.safetyAudit'), path: '/dashboard/security' },
       ];
     }
     return [];
@@ -96,7 +98,7 @@ const Sidebar: React.FC = () => {
       {/* Navigation */}
       <nav className="flex-1 space-y-2">
         <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-4 px-4">
-          Main Menu
+          {t('sidebar.mainMenu')}
         </div>
         {menuItems.map((item) => (
           <SidebarItem

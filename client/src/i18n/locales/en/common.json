@@ -1,0 +1,57 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "back": "Back",
+  "submit": "Submit",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "search": "Search",
+  "filter": "Filter",
+  "refresh": "Refresh",
+  "close": "Close",
+  "confirm": "Confirm",
+  "yes": "Yes",
+  "no": "No",
+  "unknown": "Unknown",
+  "noData": "No data available",
+  "systemOnline": "System Online",
+  "logout": "Logout",
+  "backToMenu": "Back to Menu",
+  "backToSites": "Back to Sites",
+  "backToControlPanel": "Back to Control Panel",
+  "roles": {
+    "super_admin": "Super Admin",
+    "site_admin": "Site Admin",
+    "flagger": "Flagger",
+    "ground_verifier": "Ground Verifier",
+    "online_verifier": "Online Verifier",
+    "resolver": "Resolver",
+    "compliance_officer": "Compliance Officer"
+  },
+  "severity": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "status": {
+    "open": "Open",
+    "under_review": "Under Review",
+    "verified": "Verified",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "compliance_review": "Compliance Review",
+    "compliance_approved": "Compliance Approved"
+  },
+  "toast": {
+    "saveSuccess": "Saved successfully!",
+    "deleteSuccess": "Deleted successfully!",
+    "createSuccess": "Created successfully!",
+    "updateSuccess": "Updated successfully!",
+    "fetchError": "Failed to load data.",
+    "submitError": "Submission failed. Please try again.",
+    "networkError": "Network error. Please check your connection."
+  }
+}

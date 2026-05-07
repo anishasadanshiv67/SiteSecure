@@ -17,12 +17,15 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation(['landing', 'common']);
 
   useEffect(() => {
     document.title = "Site Reliability and Safety Management System";
@@ -58,55 +61,55 @@ const LandingPage = () => {
   const features = [
     {
       icon: <Users className="h-6 w-6 text-indigo-400" />,
-      title: "Role-Based Workflow",
-      description: "Customized access and dashboards for Flaggers, Verifiers, Resolvers, and Admins."
+      title: t('features.roleWorkflow.title'),
+      description: t('features.roleWorkflow.desc')
     },
     {
       icon: <Activity className="h-6 w-6 text-indigo-400" />,
-      title: "Real-Time Incident Tracking",
-      description: "Monitor safety incidents and hazards as they happen with instant status updates."
+      title: t('features.realtime.title'),
+      description: t('features.realtime.desc')
     },
     {
       icon: <Map className="h-6 w-6 text-indigo-400" />,
-      title: "Map-Based Hazard Reporting",
-      description: "Pinpoint exact hazard locations on interactive maps for rapid on-ground response."
+      title: t('features.mapReporting.title'),
+      description: t('features.mapReporting.desc')
     },
     {
       icon: <FileText className="h-6 w-6 text-indigo-400" />,
-      title: "Audit Logs & Accountability",
-      description: "Full history of actions taken on every incident, ensuring complete accountability."
+      title: t('features.auditLogs.title'),
+      description: t('features.auditLogs.desc')
     },
     {
       icon: <Settings className="h-6 w-6 text-indigo-400" />,
-      title: "Admin Control Panel",
-      description: "Centralized management of users, site security logs, and system-wide configurations."
+      title: t('features.controlPanel.title'),
+      description: t('features.controlPanel.desc')
     }
   ];
 
   const workflowSteps = [
     { 
       icon: <ClipboardList className="h-6 w-6 text-white" />, 
-      title: "Report Incident", 
-      role: "Flagger",
-      desc: "Workers report hazards with photos and GPS location." 
+      title: t('howItWorks.steps.report.title'), 
+      role: t('howItWorks.steps.report.role'),
+      desc: t('howItWorks.steps.report.desc') 
     },
     { 
       icon: <Eye className="h-6 w-6 text-white" />, 
-      title: "Verify", 
-      role: "Verifier",
-      desc: "Online and ground teams verify the reported incident." 
+      title: t('howItWorks.steps.verify.title'), 
+      role: t('howItWorks.steps.verify.role'),
+      desc: t('howItWorks.steps.verify.desc') 
     },
     { 
       icon: <Wrench className="h-6 w-6 text-white" />, 
-      title: "Resolve", 
-      role: "Resolver",
-      desc: "Assigned resolvers fix the hazard and submit proof." 
+      title: t('howItWorks.steps.resolve.title'), 
+      role: t('howItWorks.steps.resolve.role'),
+      desc: t('howItWorks.steps.resolve.desc') 
     },
     { 
       icon: <CheckCircle className="h-6 w-6 text-white" />, 
-      title: "Close", 
-      role: "Admin",
-      desc: "Admins review the resolution and formally close the case." 
+      title: t('howItWorks.steps.close.title'), 
+      role: t('howItWorks.steps.close.role'),
+      desc: t('howItWorks.steps.close.desc') 
     }
   ];
 
@@ -133,24 +136,25 @@ const LandingPage = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">How it Works</a>
+              <a href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">{t('nav.features')}</a>
+              <a href="#how-it-works" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">{t('nav.howItWorks')}</a>
               
               <div className="flex items-center space-x-4 ml-4">
+                <LanguageSwitcher />
                 {user ? (
                   <Link 
                     to={getDashboardLink()} 
                     className="text-sm font-semibold bg-white text-slate-950 px-5 py-2 rounded-lg hover:bg-slate-200 transition-all"
                   >
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                 ) : (
                   <>
                     <Link to="/login" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                      Log in
+                      {t('nav.login')}
                     </Link>
                     <Link to="/register" className="text-sm font-semibold bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">
-                      Get Started
+                      {t('nav.getStarted')}
                     </Link>
                   </>
                 )}
@@ -172,15 +176,19 @@ const LandingPage = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden bg-slate-950 border-b border-white/5 px-6 py-8 space-y-4 animate-fade-in-up">
-            <a href="#features" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-slate-400">Features</a>
-            <a href="#how-it-works" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-slate-400">How it Works</a>
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Language</span>
+              <LanguageSwitcher />
+            </div>
+            <a href="#features" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-slate-400">{t('nav.features')}</a>
+            <a href="#how-it-works" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-slate-400">{t('nav.howItWorks')}</a>
             <div className="h-px bg-white/5 my-4"></div>
             {user ? (
-              <Link to={getDashboardLink()} className="block w-full text-center py-3 bg-white text-slate-950 rounded-xl font-bold">Dashboard</Link>
+              <Link to={getDashboardLink()} onClick={() => setIsMenuOpen(false)} className="block w-full text-center py-3 bg-white text-slate-950 rounded-xl font-bold">{t('nav.dashboard')}</Link>
             ) : (
               <>
-                <Link to="/login" className="block w-full text-center py-3 text-slate-400 font-medium">Log in</Link>
-                <Link to="/register" className="block w-full text-center py-3 bg-indigo-600 text-white rounded-xl font-bold">Get Started</Link>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block w-full text-center py-3 text-slate-400 font-medium">{t('nav.login')}</Link>
+                <Link to="/register" onClick={() => setIsMenuOpen(false)} className="block w-full text-center py-3 bg-indigo-600 text-white rounded-xl font-bold">{t('nav.getStarted')}</Link>
               </>
             )}
           </div>
@@ -198,18 +206,18 @@ const LandingPage = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            Next-Gen Industrial Safety Platform
+            {t('hero.badge')}
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-8 animate-fade-in-up [animation-delay:200ms]">
-            Site Reliability & <br className="hidden sm:block" />
+            {t('hero.title1')} <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400">
-              Safety Management
+              {t('hero.title2')}
             </span>
           </h1>
           
           <p className="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto mb-12 animate-fade-in-up [animation-delay:400ms]">
-            A premium, role-based platform for industrial safety. Streamline reporting, verification, and resolution of site hazards with real-time tracking and full accountability.
+            {t('hero.subtitle')}
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up [animation-delay:600ms]">
@@ -217,7 +225,7 @@ const LandingPage = () => {
               onClick={handleGetStarted}
               className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 group"
             >
-              {user ? 'Go to Dashboard' : 'Get Started'}
+              {user ? t('hero.ctaDashboard') : t('hero.ctaPrimary')}
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
             {!user && (
@@ -225,7 +233,7 @@ const LandingPage = () => {
                 to="/login"
                 className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
               >
-                <Lock className="h-4 w-4" /> Log In
+                <Lock className="h-4 w-4" /> {t('hero.ctaLogin')}
               </Link>
             )}
             {user && (
@@ -233,14 +241,14 @@ const LandingPage = () => {
                 to={getDashboardLink()}
                 className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-sm"
               >
-                View Dashboard
+                {t('hero.ctaView')}
               </Link>
             )}
           </div>
 
           {/* Feature Badge Grid */}
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto opacity-50">
-            {['ISO Certified', 'Real-time Sync', 'Multi-role Access', 'Secure Cloud'].map((badge) => (
+            {[t('hero.badges.iso'), t('hero.badges.realtime'), t('hero.badges.multiRole'), t('hero.badges.cloud')].map((badge) => (
               <div key={badge} className="px-4 py-2 border border-white/10 rounded-lg text-xs font-medium text-slate-500 tracking-widest uppercase">
                 {badge}
               </div>
@@ -253,8 +261,8 @@ const LandingPage = () => {
       <section id="features" className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Built for Industrial Excellence</h2>
-            <p className="text-slate-400">Everything you need to manage site safety in one centralized platform.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">{t('features.heading')}</h2>
+            <p className="text-slate-400">{t('features.subheading')}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -275,8 +283,8 @@ const LandingPage = () => {
       <section id="how-it-works" className="py-24 bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">How SiteSecure Works</h2>
-            <p className="text-slate-400">Our structured workflow ensures every incident is handled with precision.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">{t('howItWorks.heading')}</h2>
+            <p className="text-slate-400">{t('howItWorks.subheading')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
@@ -308,15 +316,15 @@ const LandingPage = () => {
             <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-black/10 rounded-full blur-3xl"></div>
             
             <div className="relative z-10">
-              <h2 className="text-3xl sm:text-5xl font-bold text-white mb-8">Ready to Secure Your Site?</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold text-white mb-8">{t('cta.heading')}</h2>
               <p className="text-indigo-100 text-lg mb-10 max-w-2xl mx-auto">
-                Join the network of professional safety teams using SiteSecure to eliminate hazards and optimize site reliability.
+                {t('cta.subheading')}
               </p>
               <Link 
                 to="/register" 
                 className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-xl"
               >
-                Start Using SiteSecure
+                {t('cta.button')}
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
@@ -333,13 +341,13 @@ const LandingPage = () => {
           </div>
           
           <div className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} SiteSecure. Site Reliability and Safety Management System.
+            © {new Date().getFullYear()} {t('footer.copyright')}
           </div>
           
           <div className="flex gap-6">
-            <a href="#features" className="text-slate-400 hover:text-white text-sm transition-colors">Features</a>
-            <a href="#how-it-works" className="text-slate-400 hover:text-white text-sm transition-colors">Workflow</a>
-            <Link to="/login" className="text-slate-400 hover:text-white text-sm transition-colors">Login</Link>
+            <a href="#features" className="text-slate-400 hover:text-white text-sm transition-colors">{t('footer.links.features')}</a>
+            <a href="#how-it-works" className="text-slate-400 hover:text-white text-sm transition-colors">{t('footer.links.workflow')}</a>
+            <Link to="/login" className="text-slate-400 hover:text-white text-sm transition-colors">{t('footer.links.login')}</Link>
           </div>
         </div>
       </footer>

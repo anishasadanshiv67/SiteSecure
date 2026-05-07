@@ -1,0 +1,63 @@
+{
+  "title": "Compliance Dashboard",
+  "subtitle": "Monitor and enforce safety compliance across all facilities.",
+  "tabs": {
+    "overview": "Overview",
+    "inspections": "Inspections",
+    "hazards": "Hazards",
+    "reports": "Reports"
+  },
+  "stats": {
+    "totalSites": "Total Sites",
+    "openHazards": "Open Hazards",
+    "pendingReview": "Pending Review",
+    "complianceRate": "Compliance Rate"
+  },
+  "inspections": {
+    "title": "Inspection Drives",
+    "createDrive": "Create Inspection Drive",
+    "noDrives": "No inspection drives found.",
+    "progress": "Progress",
+    "tasks": "Tasks",
+    "completed": "Completed",
+    "pending": "Pending",
+    "driveName": "Drive Name",
+    "inspectionType": "Inspection Type",
+    "site": "Site",
+    "assignedTo": "Assigned To",
+    "deadline": "Deadline",
+    "viewDetails": "View Details",
+    "taskList": "Task List",
+    "approve": "Approve",
+    "reject": "Reject",
+    "notes": "Compliance Notes",
+    "notesPlaceholder": "Add your compliance notes here...",
+    "submitNotes": "Submit Notes",
+    "backToList": "Back to Inspections",
+    "modal": {
+      "title": "Create Inspection Drive",
+      "driveName": "Drive Name",
+      "driveNamePlaceholder": "e.g. Q2 Fire Safety Audit",
+      "type": "Inspection Type",
+      "selectSite": "Select Site",
+      "assignFlagger": "Assign Flagger",
+      "deadline": "Deadline",
+      "createButton": "Create Drive"
+    }
+  },
+  "hazards": {
+    "title": "Hazard Management",
+    "allSeverities": "All Severities",
+    "allStatuses": "All Statuses",
+    "searchPlaceholder": "Search hazards...",
+    "noHazards": "No hazards found.",
+    "approveHazard": "Approve",
+    "rejectHazard": "Reject",
+    "viewMap": "View on Map"
+  },
+  "reports": {
+    "title": "Compliance Reports",
+    "generate": "Generate Report",
+    "noReports": "No reports available."
+  }
+}

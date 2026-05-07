@@ -1,0 +1,57 @@
+{
+  "save": "सहेजें",
+  "cancel": "रद्द करें",
+  "delete": "हटाएं",
+  "edit": "संपादित करें",
+  "back": "वापस",
+  "submit": "जमा करें",
+  "loading": "लोड हो रहा है...",
+  "error": "त्रुटि",
+  "success": "सफल",
+  "search": "खोजें",
+  "filter": "फ़िल्टर",
+  "refresh": "ताज़ा करें",
+  "close": "बंद करें",
+  "confirm": "पुष्टि करें",
+  "yes": "हाँ",
+  "no": "नहीं",
+  "unknown": "अज्ञात",
+  "noData": "कोई डेटा उपलब्ध नहीं",
+  "systemOnline": "सिस्टम ऑनलाइन",
+  "logout": "लॉगआउट",
+  "backToMenu": "मेनू पर वापस",
+  "backToSites": "साइट्स पर वापस",
+  "backToControlPanel": "कंट्रोल पैनल पर वापस",
+  "roles": {
+    "super_admin": "सुपर एडमिन",
+    "site_admin": "साइट एडमिन",
+    "flagger": "फ्लैगर",
+    "ground_verifier": "ग्राउंड वेरिफायर",
+    "online_verifier": "ऑनलाइन वेरिफायर",
+    "resolver": "रिज़ॉल्वर",
+    "compliance_officer": "अनुपालन अधिकारी"
+  },
+  "severity": {
+    "low": "कम",
+    "medium": "मध्यम",
+    "high": "उच्च"
+  },
+  "status": {
+    "open": "खुला",
+    "under_review": "समीक्षा में",
+    "verified": "सत्यापित",
+    "resolved": "हल किया गया",
+    "closed": "बंद",
+    "compliance_review": "अनुपालन समीक्षा",
+    "compliance_approved": "अनुपालन स्वीकृत"
+  },
+  "toast": {
+    "saveSuccess": "सफलतापूर्वक सहेजा गया!",
+    "deleteSuccess": "सफलतापूर्वक हटाया गया!",
+    "createSuccess": "सफलतापूर्वक बनाया गया!",
+    "updateSuccess": "सफलतापूर्वक अपडेट किया गया!",
+    "fetchError": "डेटा लोड नहीं हो सका।",
+    "submitError": "सबमिट करना विफल। पुनः प्रयास करें।",
+    "networkError": "नेटवर्क त्रुटि। कनेक्शन जाँचें।"
+  }
+}

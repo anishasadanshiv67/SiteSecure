@@ -1,0 +1,30 @@
+{
+  "title": "System Configuration",
+  "subtitle": "Manage global environment variables, security protocols, and system health.",
+  "health": {
+    "cloudStatus": "Cloud Status",
+    "operational": "Operational",
+    "databaseSync": "Database Sync",
+    "stable": "Stable",
+    "cpuLoad": "CPU Load",
+    "activeSessions": "Active Sessions"
+  },
+  "platform": {
+    "title": "Platform Preferences",
+    "emergencyBroadcasts": "Emergency Broadcasts",
+    "emergencyDesc": "Push high-priority alerts to all active personnel mobile apps.",
+    "maintenanceMode": "Maintenance Mode",
+    "maintenanceDesc": "Temporarily restrict access for scheduled database updates.",
+    "autoAudit": "Auto-Audit",
+    "autoAuditDesc": "Automatically generate weekly safety compliance reports.",
+    "saveConfig": "Save Global Config"
+  },
+  "security": {
+    "title": "Security Protocol",
+    "description": "Your system is currently running on Encrypted Node V2. All personnel data is hashed using SHA-256 and salted at the hardware level.",
+    "verified": "AES-256 Verified"
+  },
+  "adminLogs": {
+    "title": "Admin Logs"
+  }
+}

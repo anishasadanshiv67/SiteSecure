@@ -31,12 +31,14 @@ import API from '../../utils/api';
 import jsQR from 'jsqr';
 import InspectionTaskView from './InspectionTaskView';
 import { CheckSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = 'http://localhost:5000';
 
 type ViewState = 'MENU' | 'SCAN' | 'SITE_LIST' | 'SUBSITE_LIST' | 'SUBSITE_DETAIL' | 'REPORT' | 'HISTORY' | 'INSPECTIONS';
 
 const FlaggerDashboard: React.FC = () => {
+  const { t } = useTranslation(['dashboard', 'common']);
   const [view, setView] = useState<ViewState>('MENU');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -284,9 +286,9 @@ const FlaggerDashboard: React.FC = () => {
         <div className="w-24 h-24 bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
           <QrCode className="w-12 h-12 text-indigo-400" />
         </div>
-        <h3 className="text-2xl font-black text-white mb-4">Scan QR</h3>
+        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.scanQr')}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">
-          Upload a sub-zone QR code to instantly access the reporting dashboard.
+          {t('flagger.menu.scanQrDesc')}
         </p>
         <input type="file" ref={fileInputRef} onChange={handleQrUpload} className="hidden" accept="image/*" />
       </button>
@@ -301,9 +303,9 @@ const FlaggerDashboard: React.FC = () => {
         <div className="w-24 h-24 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-rose-500/20 group-hover:scale-110 transition-transform">
           <MapIcon className="w-12 h-12 text-rose-400" />
         </div>
-        <h3 className="text-2xl font-black text-white mb-4">View Sites</h3>
+        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.viewSites')}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">
-          Browse all available facility locations and their specific sub-zones.
+          {t('flagger.menu.viewSitesDesc')}
         </p>
       </button>
 
@@ -317,9 +319,9 @@ const FlaggerDashboard: React.FC = () => {
         <div className="w-24 h-24 bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
           <CheckSquare className="w-12 h-12 text-indigo-400" />
         </div>
-        <h3 className="text-2xl font-black text-white mb-4">Inspections</h3>
+        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.inspections')}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">
-          Access your assigned safety inspection tasks and audit cycles.
+          {t('flagger.menu.inspectionsDesc')}
         </p>
       </button>
 
@@ -333,9 +335,9 @@ const FlaggerDashboard: React.FC = () => {
         <div className="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform">
           <History className="w-12 h-12 text-emerald-400" />
         </div>
-        <h3 className="text-2xl font-black text-white mb-4">Report History</h3>
+        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.history')}</h3>
         <p className="text-slate-500 text-sm leading-relaxed">
-          Review all safety concerns you have reported and track their status.
+          {t('flagger.menu.historyDesc')}
         </p>
       </button>
     </div>

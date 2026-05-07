@@ -1,0 +1,35 @@
+{
+  "sidebar": {
+    "mainMenu": "मुख्य मेनू", "controlPanel": "कंट्रोल पैनल", "systemConfig": "सिस्टम कॉन्फ़िग", "userManagement": "उपयोगकर्ता प्रबंधन", "complianceDesk": "अनुपालन डेस्क", "verification": "सत्यापन", "securityLog": "सुरक्षा लॉग", "resolution": "समाधान", "auditLog": "ऑडिट लॉग", "compliance": "अनुपालन", "safetyAudit": "सुरक्षा ऑडिट", "dashboard": "डैशबोर्ड", "reportIncident": "घटना रिपोर्ट करें", "myReports": "मेरी रिपोर्ट"
+  },
+  "superAdmin": {
+    "title": "सिस्टम नियंत्रण", "titleHighlight": "पैनल", "badge": "सुपर एडमिन · निदेशक पहुंच", "subtitle": "सभी सुविधाओं, कर्मियों और सुरक्षा संचालन की पूर्ण निगरानी।",
+    "stats": { "totalFacilities": "कुल सुविधाएं", "facilitiesSubtext": "सभी क्षेत्रों में", "activePersonnel": "सक्रिय कर्मी", "openHazards": "खुले खतरे", "critical": "गंभीर", "complianceRate": "अनुपालन दर", "resolvedTotal": "कुल हल किए गए" },
+    "facilityRegistry": { "title": "सुविधा रजिस्ट्री", "subtitle": "प्रबंधन के अंतर्गत कुल सुविधाएं", "manage": "प्रबंधन", "noFacilities": "कोई सुविधा पंजीकृत नहीं", "staff": "स्टाफ", "hazards": "खतरे", "safe": "सुरक्षित", "active": "सक्रिय" },
+    "quickActions": { "title": "त्वरित क्रियाएं", "userManagement": "उपयोगकर्ता प्रबंधन", "userManagementDesc": "सभी सिस्टम खातों को बनाएं और प्रबंधित करें", "systemConfig": "सिस्टम कॉन्फ़िग", "systemConfigDesc": "प्लेटफ़ॉर्म सेटिंग्स कॉन्फ़िगर करें", "complianceDesk": "अनुपालन डेस्क", "complianceDeskDesc": "साइट सुरक्षा समीक्षाएं देखें", "securityLog": "सुरक्षा लॉग", "securityLogDesc": "सभी सिस्टम ईवेंट का पूर्ण ऑडिट ट्रेल" },
+    "personnelBreakdown": "कर्मी विवरण",
+    "incidentPipeline": { "title": "सिस्टम-व्यापी घटना पाइपलाइन", "subtitle": "सभी {{count}} सुविधाओं में रीयल-टाइम स्थिति", "flagged": "फ्लैग किया गया", "underReview": "समीक्षा में", "verified": "सत्यापित", "inResolution": "समाधान में", "compliance": "अनुपालन", "closed": "बंद" }
+  },
+  "admin": {
+    "industrialSites": "औद्योगिक साइटें", "industrialSitesSubtitle": "सभी परिचालन सुविधाओं का प्रबंधन करें।", "addNewSite": "नई साइट जोड़ें", "noSites": "कोई साइट नियुक्त नहीं", "noSitesSubtitle": "आपके खाते में कोई सुविधा नहीं है।", "accessTerminal": "टर्मिनल एक्सेस", "subzones": "उप-क्षेत्र", "personnel": "कर्मी", "openHazards": "खुले खतरे",
+    "siteModal": { "addTitle": "नई सुविधा पंजीकृत करें", "editTitle": "सुविधा संपादित करें", "siteName": "सुविधा का नाम", "siteLocation": "स्थान / शहर", "siteDescription": "संक्षिप्त विवरण", "siteNamePlaceholder": "जैसे पुणे प्लांट अल्फा", "locationPlaceholder": "जैसे पुणे, महाराष्ट्र", "descriptionPlaceholder": "सुविधा का वर्णन करें...", "mapImage": "सुविधा मानचित्र", "dragDrop": "खींचें और छोड़ें या अपलोड करने के लिए क्लिक करें", "mapUploaded": "मानचित्र अपलोड किया गया", "saveSite": "सुविधा सहेजें", "updateSite": "सुविधा अपडेट करें" },
+    "detail": { "overview": "साइट अवलोकन", "subzones": "उप-क्षेत्र", "personnel": "नियुक्त कर्मी", "hazardLog": "खतरा लॉग", "inspectionDrives": "निरीक्षण अभियान", "noSubzones": "कोई उप-क्षेत्र कॉन्फ़िगर नहीं।", "noPersonnel": "कोई कर्मी नियुक्त नहीं।", "noHazards": "कोई खतरा रिपोर्ट नहीं।", "addSubzone": "उप-क्षेत्र जोड़ें", "assignPersonnel": "कर्मी नियुक्त करें", "createDrive": "अभियान बनाएं", "safeZone": "सुरक्षित क्षेत्र", "incidentTitle": "घटना शीर्षक", "reporter": "रिपोर्टर", "severity": "गंभीरता", "status": "स्थिति", "date": "तारीख", "actions": "क्रियाएं" }
+  },
+  "userManagement": {
+    "title": "उपयोगकर्ता प्रबंधन", "subtitle": "सिस्टम एक्सेस नियंत्रित करें और साइट अनुमतियां प्रबंधित करें।", "addNewUser": "नया उपयोगकर्ता जोड़ें", "searchPlaceholder": "नाम या ईमेल से खोजें...", "allRoles": "सभी भूमिकाएं",
+    "columns": { "userProfile": "उपयोगकर्ता प्रोफ़ाइल", "accessRole": "एक्सेस भूमिका", "linkedSites": "लिंक की गई साइटें", "actions": "क्रियाएं" },
+    "unassigned": "अनियुक्त", "loadingPersonnel": "कर्मी लोड हो रहे हैं...", "noUsersFound": "आपके मापदंडों से मेल खाने वाले कोई उपयोगकर्ता नहीं मिले।",
+    "modal": { "title": "नए कर्मी को शामिल करें", "subtitle": "भूमिकाएं और साइट अनुमतियां असाइन करें।", "fullName": "पूरा नाम", "email": "ईमेल पता", "tempPassword": "अस्थायी पासवर्ड", "accessLevel": "एक्सेस स्तर", "assignToSites": "साइट्स को असाइन करें", "activate": "कर्मी सक्रिय करें" }
+  },
+  "flagger": {
+    "scanQr": "QR स्कैन करें", "scanQrDesc": "तुरंत रिपोर्टिंग डैशबोर्ड एक्सेस करने के लिए QR कोड अपलोड करें।", "viewSites": "साइटें देखें", "viewSitesDesc": "सभी उपलब्ध सुविधाएं और उनके उप-क्षेत्र देखें।", "inspections": "निरीक्षण", "inspectionsDesc": "अपने असाइन किए गए सुरक्षा निरीक्षण कार्य एक्सेस करें।", "reportHistory": "रिपोर्ट इतिहास", "reportHistoryDesc": "आपके द्वारा रिपोर्ट की गई सभी सुरक्षा चिंताओं की समीक्षा करें।",
+    "selectedFacility": "चुनी गई सुविधा", "facilityDetail": "सुविधा विवरण", "activeHazards": "सक्रिय खतरे", "safeZone": "सुरक्षित क्षेत्र", "reportNewHazard": "नया खतरा रिपोर्ट करें", "siteOverview": "साइट अवलोकन", "cancelReport": "रिपोर्ट रद्द करें", "reportHazard": "खतरा रिपोर्ट करें",
+    "incidentTitle": "घटना शीर्षक", "incidentTitlePlaceholder": "संक्षिप्त, वर्णनात्मक शीर्षक", "severity": "गंभीरता", "exactArea": "सटीक कमरा/क्षेत्र", "description": "विस्तृत विवरण", "deployReport": "रिपोर्ट भेजें", "upload": "अपलोड", "capturePhoto": "फोटो लें",
+    "assignedInspections": "असाइन किए गए निरीक्षण", "completed": "पूर्ण", "noInspectionTasks": "कोई निरीक्षण कार्य आपको असाइन नहीं किया गया",
+    "reportingHistory": "आपकी रिपोर्टिंग इतिहास", "total": "कुल", "noReports": "आपके रिकॉर्ड में कोई रिपोर्ट नहीं मिली",
+    "reportSuccess": "घटना सफलतापूर्वक रिपोर्ट की गई!", "reportError": "रिपोर्ट प्रक्रिया विफल"
+  },
+  "security": { "title": "ऑडिट लॉग", "subtitle": "अनुपालन के लिए सिस्टम-व्यापी सुरक्षा और क्रिया ट्रैकिंग।", "noLogs": "कोई ऑडिट लॉग नहीं मिला", "noLogsSubtitle": "सिस्टम क्रियाएं यहां दिखाई देंगी।", "fetchError": "सुरक्षा लॉग प्राप्त करने में विफल।", "unknownIncident": "अज्ञात घटना", "columns": { "timestamp": "टाइमस्टैम्प", "user": "उपयोगकर्ता", "action": "क्रिया", "incidentRef": "घटना संदर्भ" } },
+  "myReports": { "title": "मेरी घटना रिपोर्ट", "subtitle": "आपकी सबमिट की गई सुरक्षा घटनाओं को ट्रैक करें।", "searchPlaceholder": "मेरी रिपोर्ट खोजें...", "noReports": "कोई रिपोर्ट नहीं मिली", "noReportsSubtitle": "आपने अभी तक कोई घटना रिपोर्ट सबमिट नहीं की है।", "fetchError": "आपकी रिपोर्ट लोड करने में विफल।" },
+  "reportIncident": { "title": "नई घटना रिपोर्ट करें", "subtitle": "मानचित्र पर सुरक्षा खतरे को सटीक रूप से चिह्नित करें।", "incidentTitle": "घटना शीर्षक", "severity": "गंभीरता", "locationName": "स्थान का नाम", "description": "विवरण", "submitReport": "घटना रिपोर्ट सबमिट करें", "successTitle": "रिपोर्ट सबमिट हुई!", "successSubtitle": "आपकी घटना सफलतापूर्वक लॉग हो गई। रीडायरेक्ट हो रहे हैं...", "pinpointLocation": "स्थान चिह्नित करें", "coordinatesCaptured": "निर्देशांक कैप्चर किए गए" }
+}
