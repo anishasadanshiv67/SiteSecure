@@ -24,12 +24,17 @@ import {
   CheckSquare,
   Users,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Globe
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../context/AuthContext';
 
 const API_URL = 'http://localhost:5000';
 
 const ComplianceDashboard = () => {
+  const { t } = useTranslation(['dashboard', 'common']);
+  const { user } = useAuth();
   const [incidents, setIncidents] = useState<any[]>([]);
   const [historyIncidents, setHistoryIncidents] = useState<any[]>([]);
   const [inspectionStats, setInspectionStats] = useState<any>({});
@@ -159,7 +164,7 @@ const ComplianceDashboard = () => {
                   inspectionView === 'DRIVES' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                Inspection Cycles
+                {t('compliance.inspections.cycles')}
               </button>
               <button 
                 onClick={fetchSummary}
@@ -167,7 +172,7 @@ const ComplianceDashboard = () => {
                   inspectionView === 'SUMMARY' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                Weekly Summary
+                {t('compliance.inspections.summary')}
               </button>
            </div>
         </div>
@@ -176,26 +181,26 @@ const ComplianceDashboard = () => {
           {loading ? (
             <div className="py-20 flex flex-col items-center gap-4">
               <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Synchronizing Drives...</p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t('common:loading')}</p>
             </div>
           ) : inspectionDrives.length === 0 ? (
             <div className="py-20 text-center">
               <div className="w-20 h-20 bg-indigo-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                 <Activity className="w-10 h-10 text-indigo-400" />
               </div>
-              <h4 className="text-white font-bold text-lg">No Active Drives</h4>
-              <p className="text-slate-500 text-sm">Create your first inspection cycle to start monitoring site safety.</p>
+              <h4 className="text-white font-bold text-lg">{t('compliance.inspections.noDrives')}</h4>
+              <p className="text-slate-500 text-sm">{t('compliance.inspections.noDrivesDesc')}</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/[0.01]">
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Inspection Drive</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Facility</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Due Date</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.drive')}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.facility')}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.progress')}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.dueDate')}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.status')}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">{t('common:actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -283,10 +288,10 @@ const ComplianceDashboard = () => {
 
        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { label: 'Areas Inspected', value: summaryTasks.length, icon: Layout, color: 'indigo' },
-            { label: 'Safe Zones', value: summaryTasks.filter(t => t.status === 'completed' && !t.issueFound).length, icon: CheckCircle, color: 'emerald' },
-            { label: 'Incidents Raised', value: summaryTasks.filter(t => t.issueFound).length, icon: AlertTriangle, color: 'rose' },
-            { label: 'Compliance Rate', value: `${summaryTasks.length > 0 ? Math.round((summaryTasks.filter(t => t.status === 'completed').length / summaryTasks.length) * 100) : 0}%`, icon: Activity, color: 'amber' }
+            { label: t('compliance.weeklySummary.areas'), value: summaryTasks.length, icon: Layout, color: 'indigo' },
+            { label: t('compliance.weeklySummary.safe'), value: summaryTasks.filter(t => t.status === 'completed' && !t.issueFound).length, icon: CheckCircle, color: 'emerald' },
+            { label: t('compliance.weeklySummary.incidents'), value: summaryTasks.filter(t => t.issueFound).length, icon: AlertTriangle, color: 'rose' },
+            { label: t('compliance.weeklySummary.rate'), value: `${summaryTasks.length > 0 ? Math.round((summaryTasks.filter(t => t.status === 'completed').length / summaryTasks.length) * 100) : 0}%`, icon: Activity, color: 'amber' }
           ].map((stat, idx) => (
             <div key={idx} className="bg-white/5 border border-white/10 rounded-3xl p-6">
                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
@@ -456,8 +461,28 @@ const ComplianceDashboard = () => {
   };
 
   return (
-    <DashboardLayout title="Compliance & Safety">
+    <DashboardLayout title={t('dashboard:sidebar.compliance')}>
       <div className="space-y-8 animate-in fade-in duration-700">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg shadow-indigo-500/30">
+                <Globe className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                {t('common:roles.compliance_officer')} · {t('common:systemOnline')}
+              </span>
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tight leading-tight">
+              {t('compliance.welcome', { name: user?.name || 'Officer' })}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                {t('compliance.subtitle')}
+              </span>
+            </h1>
+          </div>
+        </div>
         
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -467,10 +492,10 @@ const ComplianceDashboard = () => {
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
                      <Activity className="w-20 h-20 text-indigo-400" />
                   </div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Active Drives</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{t('compliance.inspections.activeDrives')}</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-white">{inspectionStats.activeDrives || 0}</h2>
-                     <span className="text-indigo-400 text-xs font-bold mb-2 uppercase tracking-widest">Cycles</span>
+                     <span className="text-indigo-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.inspections.cyclesLabel')}</span>
                   </div>
                </div>
                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group">
@@ -480,7 +505,7 @@ const ComplianceDashboard = () => {
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Issues Found</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-rose-500">{inspectionStats.issuesFound || 0}</h2>
-                     <span className="text-rose-400 text-xs font-bold mb-2 uppercase tracking-widest">Incidents</span>
+                     <span className="text-rose-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.inspections.incidentsLabel')}</span>
                   </div>
                </div>
                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group">
@@ -490,7 +515,7 @@ const ComplianceDashboard = () => {
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Safe Areas</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-emerald-500">{inspectionStats.safeAreas || 0}</h2>
-                     <span className="text-emerald-400 text-xs font-bold mb-2 uppercase tracking-widest">Verified</span>
+                     <span className="text-emerald-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.inspections.verifiedLabel')}</span>
                   </div>
                </div>
              </>
@@ -503,7 +528,7 @@ const ComplianceDashboard = () => {
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Pending Review</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-white">{stats.pending}</h2>
-                     <span className="text-indigo-400 text-xs font-bold mb-2 uppercase tracking-widest">Hazards</span>
+                     <span className="text-indigo-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.stats.hazardsLabel')}</span>
                   </div>
                </div>
                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group">
@@ -513,7 +538,7 @@ const ComplianceDashboard = () => {
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">High Severity</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-rose-500">{stats.highSeverity}</h2>
-                     <span className="text-rose-400 text-xs font-bold mb-2 uppercase tracking-widest">Critical</span>
+                     <span className="text-rose-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.stats.criticalLabel')}</span>
                   </div>
                </div>
                <div className="bg-slate-900/50 border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group">
@@ -523,7 +548,7 @@ const ComplianceDashboard = () => {
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Closed Hazards</p>
                   <div className="flex items-end gap-3">
                      <h2 className="text-5xl font-black text-emerald-500">{stats.closedTotal || 0}</h2>
-                     <span className="text-emerald-400 text-xs font-bold mb-2 uppercase tracking-widest">Compliant</span>
+                     <span className="text-emerald-400 text-xs font-bold mb-2 uppercase tracking-widest">{t('compliance.stats.compliantLabel')}</span>
                   </div>
                </div>
              </>
@@ -566,16 +591,16 @@ const ComplianceDashboard = () => {
                 {view === 'QUEUE' ? <ClipboardList className="text-indigo-500 w-6 h-6" /> : 
                  view === 'HISTORY' ? <HistoryIcon className="text-emerald-500 w-6 h-6" /> :
                  <CheckSquare className="text-indigo-400 w-6 h-6" />}
-                {view === 'QUEUE' ? 'Safety Review Queue' : 
-                 view === 'HISTORY' ? 'Compliance History' :
-                 'Inspection Drives'}
+                {view === 'QUEUE' ? t('compliance.titles.safetyReview') : 
+                 view === 'HISTORY' ? t('compliance.titles.complianceHistory') :
+                 t('compliance.titles.inspectionDrives')}
               </h3>
               <p className="text-slate-500 text-xs mt-1">
                 {view === 'QUEUE' 
-                  ? 'Review verified resolutions and authorize site safety closure.' 
+                  ? t('compliance.subtitles.safetyReview') 
                   : view === 'HISTORY' 
-                  ? 'Registry of all authorized safety closures and compliance audits.'
-                  : 'Manage safety inspection cycles and monitor field inspector progress.'}
+                  ? t('compliance.subtitles.complianceHistory')
+                  : t('compliance.subtitles.inspectionDrives')}
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -603,29 +628,29 @@ const ComplianceDashboard = () => {
               {loading ? (
                 <div className="py-20 flex flex-col items-center gap-4">
                   <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Synchronizing Queue...</p>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t('common:loading')}</p>
                 </div>
               ) : (view === 'QUEUE' ? incidents : historyIncidents).length === 0 ? (
                 <div className="py-20 text-center">
                   <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                     {view === 'QUEUE' ? <CheckCircle className="w-10 h-10 text-emerald-500" /> : <HistoryIcon className="w-10 h-10 text-emerald-500" />}
                   </div>
-                  <h4 className="text-white font-bold text-lg">{view === 'QUEUE' ? 'All Clear' : 'No History'}</h4>
+                  <h4 className="text-white font-bold text-lg">{view === 'QUEUE' ? t('compliance.status.allClear') : t('compliance.status.noHistory')}</h4>
                   <p className="text-slate-500 text-sm">
                     {view === 'QUEUE' 
-                      ? 'No incidents currently awaiting compliance review.' 
-                      : 'No safety closures have been recorded yet.'}
+                      ? t('compliance.status.noPending') 
+                      : t('compliance.status.noClosed')}
                   </p>
                 </div>
               ) : (
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-white/[0.01]">
-                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Incident</th>
-                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Facility Location</th>
-                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Severity</th>
-                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{view === 'QUEUE' ? 'Resolved At' : 'Closed At'}</th>
-                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Action</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.incident')}</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.facilityLocation')}</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('compliance.table.severity')}</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">{view === 'QUEUE' ? t('compliance.table.resolvedAt') : t('compliance.table.closedAt')}</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">{t('common:actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -768,13 +793,13 @@ const ComplianceDashboard = () => {
                         <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 space-y-6">
                            <div className="flex items-center gap-4 text-indigo-400 mb-2">
                               <MessageSquare className="w-6 h-6" />
-                              <h4 className="text-lg font-black uppercase tracking-widest">Officer Remarks</h4>
+                              <h4 className="text-lg font-black uppercase tracking-widest">{t('compliance.modal.officerRemarks')}</h4>
                            </div>
-                           <p className="text-[10px] text-slate-500 uppercase font-bold mb-4 tracking-wider">Final safety verification findings</p>
+                           <p className="text-[10px] text-slate-500 uppercase font-bold mb-4 tracking-wider">{t('compliance.modal.findingsSub')}</p>
                            <textarea 
                              value={complianceNotes}
                              onChange={(e) => setComplianceNotes(e.target.value)}
-                             placeholder="Detail your findings or reasons for re-inspection..."
+                             placeholder={t('compliance.modal.notesPlaceholder')}
                              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 min-h-[200px] transition-all shadow-inner"
                            />
                            
@@ -785,7 +810,7 @@ const ComplianceDashboard = () => {
                                 className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
                               >
                                  {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileCheck className="w-4 h-4" />}
-                                 Authorize Site Closure
+                                 {t('compliance.actions.authorizeClosure')}
                               </button>
                               <button 
                                 onClick={() => handleAction(selectedIncident._id, 'reinspect')}
@@ -793,7 +818,7 @@ const ComplianceDashboard = () => {
                                 className="w-full py-4 bg-white/5 text-slate-400 border border-white/10 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
                               >
                                  <RotateCcw className="w-4 h-4" />
-                                 Request Re-Inspection
+                                 {t('compliance.actions.requestReinspection')}
                               </button>
                            </div>
                         </div>

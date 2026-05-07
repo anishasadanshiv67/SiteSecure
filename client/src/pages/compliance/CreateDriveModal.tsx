@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Loader2, Calendar, Layout, Users, FileText, CheckCircle } from 'lucide-react';
+import { X, Loader2, Calendar, Layout, Users, FileText, CheckCircle, Plus, CheckSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import API from '../../utils/api';
 
 interface CreateDriveModalProps {
@@ -8,6 +9,7 @@ interface CreateDriveModalProps {
 }
 
 const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
+  const { t } = useTranslation(['dashboard', 'common']);
   const [loading, setLoading] = useState(false);
   const [sites, setSites] = useState<any[]>([]);
   const [subsites, setSubsites] = useState<any[]>([]);
@@ -140,8 +142,8 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
               <Plus className="w-6 h-6 text-indigo-400" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white uppercase tracking-tight">Create Inspection Drive</h2>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-0.5">Safety & Compliance Cycle</p>
+              <h2 className="text-xl font-black text-white uppercase tracking-tight">{t('compliance.createDrive.title')}</h2>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-0.5">{t('compliance.createDrive.subtitle')}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-white transition-colors">
@@ -156,47 +158,47 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <FileText className="w-3 h-3" /> Inspection Title
+                    <FileText className="w-3 h-3" /> {t('compliance.createDrive.inspectionTitle')}
                   </label>
                   <input 
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    placeholder="e.g. Weekly Fire Safety Audit"
+                    placeholder={t('compliance.createDrive.titlePlaceholder')}
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <Layout className="w-3 h-3" /> Inspection Type
+                    <Layout className="w-3 h-3" /> {t('compliance.createDrive.inspectionType')}
                   </label>
                   <select 
                     required
                     value={formData.inspectionType}
                     onChange={(e) => setFormData({...formData, inspectionType: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all [&>option]:bg-slate-900"
                   >
-                    <option value="Daily Safety Inspection">Daily Safety Inspection</option>
-                    <option value="Weekly Compliance Audit">Weekly Compliance Audit</option>
-                    <option value="Fire Safety Inspection">Fire Safety Inspection</option>
-                    <option value="Electrical Inspection">Electrical Inspection</option>
-                    <option value="Equipment Inspection">Equipment Inspection</option>
+                    <option value="Daily Safety Inspection">{t('compliance.createDrive.types.daily')}</option>
+                    <option value="Weekly Compliance Audit">{t('compliance.createDrive.types.weekly')}</option>
+                    <option value="Fire Safety Inspection">{t('compliance.createDrive.types.fire')}</option>
+                    <option value="Electrical Inspection">{t('compliance.createDrive.types.electrical')}</option>
+                    <option value="Equipment Inspection">{t('compliance.createDrive.types.equipment')}</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <Layout className="w-3 h-3" /> Select Site
+                    <Layout className="w-3 h-3" /> {t('compliance.createDrive.selectSite')}
                   </label>
                   <select 
                     required
                     value={formData.siteId}
                     onChange={(e) => handleSiteChange(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all [&>option]:bg-slate-900"
                   >
-                    <option value="">Select a site</option>
+                    <option value="">{t('compliance.createDrive.selectSitePlaceholder')}</option>
                     {sites.map(site => (
                       <option key={site._id} value={site._id}>{site.name}</option>
                     ))}
@@ -205,14 +207,14 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <Calendar className="w-3 h-3" /> Due Date
+                    <Calendar className="w-3 h-3" /> {t('compliance.createDrive.dueDate')}
                   </label>
                   <input 
                     type="date"
                     required
                     value={formData.dueDate}
                     onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -221,9 +223,9 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                      <CheckCircle className="w-3 h-3" /> Select Sub-Zones ({subsites.length})
+                      <CheckCircle className="w-3 h-3" /> {t('compliance.createDrive.selectSubzones', { count: subsites.length })}
                     </label>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
+                    <div className="bg-slate-950 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
                       {subsites.map(sub => (
                         <label key={sub._id} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-white/5 rounded-lg transition-all">
                           <input 
@@ -235,7 +237,7 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
                                 : formData.subsiteIds.filter(id => id !== sub._id);
                               setFormData({...formData, subsiteIds: ids});
                             }}
-                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
+                            className="w-4 h-4 rounded border-white/10 bg-slate-950 text-indigo-500 focus:ring-0"
                           />
                           <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{sub.name}</span>
                         </label>
@@ -245,9 +247,9 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
 
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                      <Users className="w-3 h-3" /> Assign Inspectors ({inspectors.length})
+                      <Users className="w-3 h-3" /> {t('compliance.createDrive.assignInspectors', { count: inspectors.length })}
                     </label>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
+                    <div className="bg-slate-950 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
                       {inspectors.map(ins => (
                         <label key={ins._id} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-white/5 rounded-lg transition-all">
                           <input 
@@ -259,7 +261,7 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
                                 : formData.assignedInspectors.filter(id => id !== ins._id);
                               setFormData({...formData, assignedInspectors: ids});
                             }}
-                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
+                            className="w-4 h-4 rounded border-white/10 bg-slate-950 text-indigo-500 focus:ring-0"
                           />
                           <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{ins.name}</span>
                         </label>
@@ -270,25 +272,23 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
               )}
             </div>
 
-            {/* Right Section: Checklist Builder */}
             <div className="space-y-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-indigo-400" /> Inspection Checklist
+                  <CheckSquare className="w-4 h-4 text-indigo-400" /> {t('compliance.createDrive.checklistTitle')}
                 </label>
                 <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded-full">
-                  {formData.checklist.length} Selected
+                  {t('compliance.createDrive.selectedCount', { count: formData.checklist.length })}
                 </span>
               </div>
 
-              {/* Custom Question Add */}
               <div className="flex gap-2">
                 <input 
                   type="text"
                   value={customQuestion}
                   onChange={(e) => setCustomQuestion(e.target.value)}
-                  placeholder="Add custom safety question..."
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all"
+                  placeholder={t('compliance.createDrive.customQuestionPlaceholder')}
+                  className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all"
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomQuestion())}
                 />
                 <button 
@@ -349,7 +349,7 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
               className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 disabled:opacity-50 active:scale-[0.98]"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-              Initialize Safety Inspection Cycle
+              {t('compliance.createDrive.submit')}
             </button>
           </div>
         </form>
@@ -357,17 +357,5 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
     </div>
   );
 };
-
-const Plus = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-  </svg>
-);
-
-const CheckSquare = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-  </svg>
-);
 
 export default CreateDriveModal;

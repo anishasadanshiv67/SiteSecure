@@ -275,5 +275,116 @@
     "severity_low": "Low Priority",
     "severity_medium": "Medium Priority",
     "severity_high": "High Priority"
+  },
+  "compliance": {
+    "welcome": "Welcome back, {{name}}",
+    "subtitle": "Institutional safety verification and compliance oversight.",
+    "stats": {
+      "pendingReview": "Pending Review",
+      "hazardsLabel": "Hazards",
+      "highSeverity": "High Severity",
+      "criticalLabel": "Critical",
+      "closedHazards": "Closed Hazards",
+      "compliantLabel": "Compliant"
+    },
+    "inspections": {
+      "activeDrives": "Active Drives",
+      "cyclesLabel": "Cycles",
+      "issuesFound": "Issues Found",
+      "incidentsLabel": "Incidents",
+      "safeAreas": "Safe Areas",
+      "verifiedLabel": "Verified",
+      "cycles": "Inspection Cycles",
+      "summary": "Weekly Summary",
+      "noDrives": "No Active Drives",
+      "noDrivesDesc": "Create your first inspection cycle to start monitoring site safety.",
+      "auditLabel": "Safety Audit Drive"
+    },
+    "views": {
+      "pendingQueue": "Pending Queue",
+      "closureHistory": "Closure History",
+      "safetyInspections": "Safety Inspections"
+    },
+    "titles": {
+      "safetyReview": "Safety Review Queue",
+      "complianceHistory": "Compliance History",
+      "inspectionDrives": "Inspection Drives"
+    },
+    "subtitles": {
+      "safetyReview": "Review verified resolutions and authorize site safety closure.",
+      "complianceHistory": "Registry of all authorized safety closures and compliance audits.",
+      "inspectionDrives": "Manage safety inspection cycles and monitor field inspector progress."
+    },
+    "actions": {
+      "createDrive": "Create Drive",
+      "authorizeClosure": "Authorize Site Closure",
+      "requestReinspection": "Request Re-Inspection"
+    },
+    "status": {
+      "allClear": "All Clear",
+      "noHistory": "No History",
+      "noPending": "No incidents currently awaiting compliance review.",
+      "noClosed": "No safety closures have been recorded yet."
+    },
+    "table": {
+      "drive": "Inspection Drive",
+      "facility": "Facility",
+      "progress": "Progress",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "subzone": "Sub-Zone",
+      "inspector": "Inspector",
+      "finding": "Finding",
+      "submittedAt": "Submitted At",
+      "incident": "Incident",
+      "facilityLocation": "Facility Location",
+      "severity": "Severity",
+      "resolvedAt": "Resolved At",
+      "closedAt": "Closed At"
+    },
+    "modal": {
+      "reviewLabel": "Safety Review",
+      "workflowStatus": "Workflow Status",
+      "initialData": "Initial Incident Data",
+      "resolutionProof": "Resolution Proof",
+      "noNotes": "No resolution notes provided.",
+      "evidenceGallery": "Evidence Gallery",
+      "officerRemarks": "Officer Remarks",
+      "findingsSub": "Final safety verification findings",
+      "notesPlaceholder": "Detail your findings or reasons for re-inspection..."
+    },
+    "weeklySummary": {
+      "title": "Weekly Compliance Summary",
+      "subtitle": "Institutional safety audit performance for the last 7 days.",
+      "export": "Export Report",
+      "areas": "Areas Inspected",
+      "safe": "Safe Zones",
+      "incidents": "Incidents Raised",
+      "rate": "Compliance Rate",
+      "remarks": "Inspector Remarks & Evidence"
+    },
+    "createDrive": {
+      "title": "Create Inspection Drive",
+      "subtitle": "Safety & Compliance Cycle",
+      "inspectionTitle": "Inspection Title",
+      "titlePlaceholder": "e.g. Weekly Fire Safety Audit",
+      "inspectionType": "Inspection Type",
+      "selectSite": "Select Site",
+      "selectSitePlaceholder": "Select a site",
+      "dueDate": "Due Date",
+      "selectSubzones": "Select Sub-Zones ({{count}})",
+      "assignInspectors": "Assign Inspectors ({{count}})",
+      "checklistTitle": "Inspection Checklist",
+      "selectedCount": "{{count}} Selected",
+      "customQuestionPlaceholder": "Add custom safety question...",
+      "submit": "Initialize Safety Inspection Cycle",
+      "types": {
+        "daily": "Daily Safety Inspection",
+        "weekly": "Weekly Compliance Audit",
+        "fire": "Fire Safety Inspection",
+        "electrical": "Electrical Inspection",
+        "equipment": "Equipment Inspection"
+      }
+    }
   }
 }
