@@ -169,14 +169,24 @@
     }
   },
   "flagger": {
-    "scanQr": "Scan QR",
-    "scanQrDesc": "Upload a sub-zone QR code to instantly access the reporting dashboard.",
-    "viewSites": "View Sites",
-    "viewSitesDesc": "Browse all available facility locations and their specific sub-zones.",
-    "inspections": "Inspections",
-    "inspectionsDesc": "Access your assigned safety inspection tasks and audit cycles.",
-    "reportHistory": "Report History",
-    "reportHistoryDesc": "Review all safety concerns you have reported and track their status.",
+    "welcome": "Welcome back, {{name}}",
+    "subtitle": "Safe operations start with you. Use the tools below to monitor and report hazards.",
+    "stats": {
+      "totalReports": "Total Reports",
+      "pending": "Pending Review",
+      "resolved": "Resolved Issues",
+      "inspections": "Active Audits"
+    },
+    "menu": {
+      "scanQr": "Scan QR Code",
+      "scanQrDesc": "Instant zone access via QR upload",
+      "viewSites": "Browse Sites",
+      "viewSitesDesc": "Explore facility sub-zones",
+      "inspections": "Inspection Tasks",
+      "inspectionsDesc": "View assigned safety audits",
+      "history": "My Activity",
+      "historyDesc": "Track your report status"
+    },
     "selectedFacility": "Selected Facility",
     "facilityDetail": "Facility Detail",
     "activeHazards": "Active Hazards",

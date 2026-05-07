@@ -24,7 +24,8 @@ import {
   Edit3,
   Trash2,
   Navigation,
-  X
+  X,
+  Shield
 } from 'lucide-react';
 
 import API from '../../utils/api';
@@ -32,12 +33,14 @@ import jsQR from 'jsqr';
 import InspectionTaskView from './InspectionTaskView';
 import { CheckSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../context/AuthContext';
 
 const API_URL = 'http://localhost:5000';
 
 type ViewState = 'MENU' | 'SCAN' | 'SITE_LIST' | 'SUBSITE_LIST' | 'SUBSITE_DETAIL' | 'REPORT' | 'HISTORY' | 'INSPECTIONS';
 
 const FlaggerDashboard: React.FC = () => {
+  const { user } = useAuth();
   const { t } = useTranslation(['dashboard', 'common']);
   const [view, setView] = useState<ViewState>('MENU');
   const [loading, setLoading] = useState(false);
@@ -274,74 +277,132 @@ const FlaggerDashboard: React.FC = () => {
   };
 
   // Rendering Functions
-  const renderMenu = () => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
-      <button 
-        onClick={() => fileInputRef.current?.click()}
-        className="group relative bg-white/5 border border-white/10 rounded-[3rem] p-10 text-center hover:border-indigo-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
-      >
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <QrCode className="w-40 h-40" />
-        </div>
-        <div className="w-24 h-24 bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-          <QrCode className="w-12 h-12 text-indigo-400" />
-        </div>
-        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.scanQr')}</h3>
-        <p className="text-slate-500 text-sm leading-relaxed">
-          {t('flagger.menu.scanQrDesc')}
-        </p>
-        <input type="file" ref={fileInputRef} onChange={handleQrUpload} className="hidden" accept="image/*" />
-      </button>
+  const renderMenu = () => {
+    const totalReports = myIncidents.length;
+    const resolvedReports = myIncidents.filter(i => ['closed', 'compliance_approved'].includes(i.status)).length;
+    const pendingReports = totalReports - resolvedReports;
+    const activeTasks = inspectionTasks.length;
 
-      <button 
-        onClick={fetchSites}
-        className="group relative bg-white/5 border border-white/10 rounded-[3rem] p-10 text-center hover:border-rose-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
-      >
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <MapIcon className="w-40 h-40" />
+    return (
+      <div className="space-y-10 animate-in fade-in duration-700">
+        {/* Welcome Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-indigo-500/30">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                {t('common:roles.flagger')} · {t('common:systemOnline')}
+              </span>
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tight">
+              {t('flagger.welcome', { name: user?.name || 'Worker' })}
+            </h1>
+            <p className="text-slate-400 mt-2 text-sm max-w-lg">
+              {t('flagger.subtitle')}
+            </p>
+          </div>
         </div>
-        <div className="w-24 h-24 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-rose-500/20 group-hover:scale-110 transition-transform">
-          <MapIcon className="w-12 h-12 text-rose-400" />
-        </div>
-        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.viewSites')}</h3>
-        <p className="text-slate-500 text-sm leading-relaxed">
-          {t('flagger.menu.viewSitesDesc')}
-        </p>
-      </button>
 
-      <button 
-        onClick={fetchInspectionTasks}
-        className="group relative bg-white/5 border border-white/10 rounded-[3rem] p-10 text-center hover:border-indigo-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
-      >
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <CheckSquare className="w-40 h-40" />
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard 
+            label={t('flagger.stats.totalReports')} 
+            value={totalReports} 
+            icon={FileText} 
+            color="blue" 
+          />
+          <StatCard 
+            label={t('flagger.stats.pending')} 
+            value={pendingReports} 
+            icon={AlertTriangle} 
+            color="amber" 
+          />
+          <StatCard 
+            label={t('flagger.stats.resolved')} 
+            value={resolvedReports} 
+            icon={CheckCircle2} 
+            color="green" 
+          />
+          <StatCard 
+            label={t('flagger.stats.inspections')} 
+            value={activeTasks} 
+            icon={CheckSquare} 
+            color="purple" 
+          />
         </div>
-        <div className="w-24 h-24 bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-          <CheckSquare className="w-12 h-12 text-indigo-400" />
-        </div>
-        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.inspections')}</h3>
-        <p className="text-slate-500 text-sm leading-relaxed">
-          {t('flagger.menu.inspectionsDesc')}
-        </p>
-      </button>
 
-      <button 
-        onClick={() => setView('HISTORY')}
-        className="group relative bg-white/5 border border-white/10 rounded-[3rem] p-10 text-center hover:border-emerald-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
-      >
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <History className="w-40 h-40" />
+        {/* Action Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center hover:border-indigo-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-5">
+               <QrCode className="w-32 h-32" />
+            </div>
+            <div className="w-20 h-20 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+              <QrCode className="w-10 h-10 text-indigo-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{t('flagger.menu.scanQr')}</h3>
+            <p className="text-slate-500 text-xs leading-relaxed">
+              {t('flagger.menu.scanQrDesc')}
+            </p>
+            <input type="file" ref={fileInputRef} onChange={handleQrUpload} className="hidden" accept="image/*" />
+          </button>
+
+          <button 
+            onClick={fetchSites}
+            className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center hover:border-rose-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-5">
+               <MapIcon className="w-32 h-32" />
+            </div>
+            <div className="w-20 h-20 bg-rose-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-rose-500/20 group-hover:scale-110 transition-transform">
+              <MapIcon className="w-10 h-10 text-rose-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{t('flagger.menu.viewSites')}</h3>
+            <p className="text-slate-500 text-xs leading-relaxed">
+              {t('flagger.menu.viewSitesDesc')}
+            </p>
+          </button>
+
+          <button 
+            onClick={fetchInspectionTasks}
+            className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center hover:border-indigo-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-5">
+               <CheckSquare className="w-32 h-32" />
+            </div>
+            <div className="w-20 h-20 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+              <CheckSquare className="w-10 h-10 text-indigo-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{t('flagger.menu.inspections')}</h3>
+            <p className="text-slate-500 text-xs leading-relaxed">
+              {t('flagger.menu.inspectionsDesc')}
+            </p>
+          </button>
+
+          <button 
+            onClick={() => setView('HISTORY')}
+            className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center hover:border-emerald-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-5">
+               <History className="w-32 h-32" />
+            </div>
+            <div className="w-20 h-20 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <History className="w-10 h-10 text-emerald-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">{t('flagger.menu.history')}</h3>
+            <p className="text-slate-500 text-xs leading-relaxed">
+              {t('flagger.menu.historyDesc')}
+            </p>
+          </button>
         </div>
-        <div className="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-          <History className="w-12 h-12 text-emerald-400" />
-        </div>
-        <h3 className="text-2xl font-black text-white mb-4">{t('flagger.menu.history')}</h3>
-        <p className="text-slate-500 text-sm leading-relaxed">
-          {t('flagger.menu.historyDesc')}
-        </p>
-      </button>
-    </div>
-  );
+      </div>
+    );
+  };
 
   const renderSiteList = () => (
     <div className="space-y-6">
