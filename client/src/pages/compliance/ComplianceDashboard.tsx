@@ -8,7 +8,6 @@ import {
   CheckCircle, 
   History as HistoryIcon,
   Search, 
-  Filter, 
   Loader2, 
   AlertTriangle,
   ClipboardList,
@@ -24,7 +23,8 @@ import {
   BarChart3,
   CheckSquare,
   Users,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000';
@@ -44,6 +44,8 @@ const ComplianceDashboard = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCreateDriveModal, setShowCreateDriveModal] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [complianceNotes, setComplianceNotes] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (view === 'QUEUE') {
@@ -205,13 +207,13 @@ const ComplianceDashboard = () => {
                             {drive.completedTasks}/{drive.totalTasks} Done
                           </span>
                           <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">
-                            {Math.round((drive.completedTasks / drive.totalTasks) * 100)}%
+                            {drive.totalTasks > 0 ? Math.round((drive.completedTasks / drive.totalTasks) * 100) : 0}%
                           </span>
                         </div>
                         <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-indigo-500 transition-all duration-1000" 
-                            style={{ width: `${(drive.completedTasks / drive.totalTasks) * 100}%` }}
+                            style={{ width: `${drive.totalTasks > 0 ? (drive.completedTasks / drive.totalTasks) * 100 : 0}%` }}
                           />
                         </div>
                         {drive.issuesFound > 0 && (
@@ -303,7 +305,7 @@ const ComplianceDashboard = () => {
                       </span>
                    </div>
                    <p className="text-slate-400 text-xs italic leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">
-                      "{task.remarks}"
+                      &ldquo;{task.remarks}&rdquo;
                    </p>
                    {task.uploadedImages?.length > 0 && (
                       <div className="flex gap-2">
@@ -666,7 +668,7 @@ const ComplianceDashboard = () => {
                           <div className="space-y-2">
                              <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Resolution Proof</h4>
                              <p className="text-slate-300 text-sm leading-relaxed bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/10 italic">
-                                "{selectedIncident.resolution?.notes || 'No resolution notes provided.'}"
+                                &ldquo;{selectedIncident.resolution?.notes || 'No resolution notes provided.'}&rdquo;
                              </p>
                           </div>
                        </div>
@@ -735,7 +737,7 @@ const ComplianceDashboard = () => {
                            </div>
                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Final Remarks</p>
-                              <p className="text-slate-300 text-xs italic">"{selectedIncident.complianceReview?.notes || 'No remarks provided.'}"</p>
+                              <p className="text-slate-300 text-xs italic">&ldquo;{selectedIncident.complianceReview?.notes || 'No remarks provided.'}&rdquo;</p>
                            </div>
                            <div className="space-y-2">
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Authorized By</p>
