@@ -6,7 +6,8 @@ const {
   getInspectorTasks, 
   submitTask, 
   getComplianceStats,
-  getWeeklySummary
+  getWeeklySummary,
+  getDriveTasks
 } = require('../controllers/inspectionController');
 const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -15,6 +16,7 @@ router.use(verifyToken);
 
 router.post('/drive', authorizeRoles('compliance_officer', 'super_admin'), createDrive);
 router.get('/drives', authorizeRoles('compliance_officer', 'super_admin'), getDrives);
+router.get('/drives/:id/tasks', authorizeRoles('compliance_officer', 'super_admin'), getDriveTasks);
 router.get('/stats', authorizeRoles('compliance_officer', 'super_admin'), getComplianceStats);
 router.get('/summary', authorizeRoles('compliance_officer', 'super_admin'), getWeeklySummary);
 
