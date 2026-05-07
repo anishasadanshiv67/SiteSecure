@@ -20,12 +20,69 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
     siteId: '',
     subsiteIds: [] as string[],
     assignedInspectors: [] as string[],
-    dueDate: ''
+    dueDate: '',
+    checklist: [] as string[]
   });
+
+  const [customQuestion, setCustomQuestion] = useState('');
+
+  const questionLibrary = [
+    { category: 'Fire Safety', questions: [
+      'Emergency exits clear and unobstructed',
+      'Fire extinguishers present and serviced',
+      'Fire alarm system functional',
+      'Exit signs illuminated',
+      'No storage of flammable materials near heat sources'
+    ]},
+    { category: 'Electrical', questions: [
+      'No exposed wiring or damaged cables',
+      'Electrical panels accessible and locked',
+      'No overloading of power strips',
+      'Equipment grounded properly',
+      'Lighting functional in all areas'
+    ]},
+    { category: 'General Safety', questions: [
+      'Walkways free of tripping hazards',
+      'Spills cleaned and marked',
+      'Guardrails/Handrails secure',
+      'First aid kits stocked and accessible',
+      'Proper signage for hazards'
+    ]},
+    { category: 'Security', questions: [
+      'Entry/Exit points secure',
+      'CCTV cameras operational',
+      'Unauthorized personnel restricted',
+      'ID badges visible on staff'
+    ]},
+    { category: 'Environmental', questions: [
+      'Waste disposed of correctly',
+      'No leakage of chemicals/fluids',
+      'Proper ventilation in work areas',
+      'Temperature/Humidity within safe levels'
+    ]}
+  ];
 
   useEffect(() => {
     fetchSites();
   }, []);
+
+  const toggleQuestion = (q: string) => {
+    const newChecklist = formData.checklist.includes(q)
+      ? formData.checklist.filter(item => item !== q)
+      : [...formData.checklist, q];
+    setFormData({ ...formData, checklist: newChecklist });
+  };
+
+  const addCustomQuestion = () => {
+    if (customQuestion.trim()) {
+      setFormData({ ...formData, checklist: [...formData.checklist, customQuestion.trim()] });
+      setCustomQuestion('');
+    }
+  };
+
+  const removeQuestion = (q: string) => {
+    setFormData({ ...formData, checklist: formData.checklist.filter(item => item !== q) });
+  };
 
   const fetchSites = async () => {
     try {
@@ -56,6 +113,10 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
       alert('Please fill all required fields and select at least one subsite and inspector.');
       return;
     }
+    if (formData.checklist.length === 0) {
+      alert('Please select at least one checklist item.');
+      return;
+    }
 
     try {
       setLoading(true);
@@ -69,10 +130,10 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 animate-in fade-in duration-300">
       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" onClick={onClose} />
       
-      <div className="relative bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
+      <div className="relative bg-slate-900 border border-white/10 w-full max-w-6xl h-full max-h-[95vh] rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col">
         <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-indigo-500/10 rounded-xl">
@@ -88,131 +149,209 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <FileText className="w-3 h-3" /> Inspection Title
-              </label>
-              <input 
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                placeholder="e.g. Weekly Fire Safety Audit"
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
-              />
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Section: Details & Assignment */}
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <FileText className="w-3 h-3" /> Inspection Title
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    placeholder="e.g. Weekly Fire Safety Audit"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <Layout className="w-3 h-3" /> Inspection Type
+                  </label>
+                  <select 
+                    required
+                    value={formData.inspectionType}
+                    onChange={(e) => setFormData({...formData, inspectionType: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  >
+                    <option value="Daily Safety Inspection">Daily Safety Inspection</option>
+                    <option value="Weekly Compliance Audit">Weekly Compliance Audit</option>
+                    <option value="Fire Safety Inspection">Fire Safety Inspection</option>
+                    <option value="Electrical Inspection">Electrical Inspection</option>
+                    <option value="Equipment Inspection">Equipment Inspection</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <Layout className="w-3 h-3" /> Select Site
+                  </label>
+                  <select 
+                    required
+                    value={formData.siteId}
+                    onChange={(e) => handleSiteChange(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  >
+                    <option value="">Select a site</option>
+                    {sites.map(site => (
+                      <option key={site._id} value={site._id}>{site.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <Calendar className="w-3 h-3" /> Due Date
+                  </label>
+                  <input 
+                    type="date"
+                    required
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              {formData.siteId && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      <CheckCircle className="w-3 h-3" /> Select Sub-Zones ({subsites.length})
+                    </label>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
+                      {subsites.map(sub => (
+                        <label key={sub._id} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-white/5 rounded-lg transition-all">
+                          <input 
+                            type="checkbox"
+                            checked={formData.subsiteIds.includes(sub._id)}
+                            onChange={(e) => {
+                              const ids = e.target.checked 
+                                ? [...formData.subsiteIds, sub._id]
+                                : formData.subsiteIds.filter(id => id !== sub._id);
+                              setFormData({...formData, subsiteIds: ids});
+                            }}
+                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
+                          />
+                          <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{sub.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      <Users className="w-3 h-3" /> Assign Inspectors ({inspectors.length})
+                    </label>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-48 overflow-y-auto space-y-2 custom-scrollbar">
+                      {inspectors.map(ins => (
+                        <label key={ins._id} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-white/5 rounded-lg transition-all">
+                          <input 
+                            type="checkbox"
+                            checked={formData.assignedInspectors.includes(ins._id)}
+                            onChange={(e) => {
+                              const ids = e.target.checked 
+                                ? [...formData.assignedInspectors, ins._id]
+                                : formData.assignedInspectors.filter(id => id !== ins._id);
+                              setFormData({...formData, assignedInspectors: ids});
+                            }}
+                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
+                          />
+                          <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{ins.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <Layout className="w-3 h-3" /> Inspection Type
-              </label>
-              <select 
-                required
-                value={formData.inspectionType}
-                onChange={(e) => setFormData({...formData, inspectionType: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
-              >
-                <option value="Daily Safety Inspection">Daily Safety Inspection</option>
-                <option value="Weekly Compliance Audit">Weekly Compliance Audit</option>
-                <option value="Fire Safety Inspection">Fire Safety Inspection</option>
-                <option value="Electrical Inspection">Electrical Inspection</option>
-                <option value="Equipment Inspection">Equipment Inspection</option>
-              </select>
-            </div>
+            {/* Right Section: Checklist Builder */}
+            <div className="space-y-6 bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-indigo-400" /> Inspection Checklist
+                </label>
+                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded-full">
+                  {formData.checklist.length} Selected
+                </span>
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <Layout className="w-3 h-3" /> Select Site
-              </label>
-              <select 
-                required
-                value={formData.siteId}
-                onChange={(e) => handleSiteChange(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
-              >
-                <option value="">Select a site</option>
-                {sites.map(site => (
-                  <option key={site._id} value={site._id}>{site.name}</option>
+              {/* Custom Question Add */}
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  value={customQuestion}
+                  onChange={(e) => setCustomQuestion(e.target.value)}
+                  placeholder="Add custom safety question..."
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomQuestion())}
+                />
+                <button 
+                  type="button"
+                  onClick={addCustomQuestion}
+                  className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-all shadow-lg"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Question Library */}
+              <div className="h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-6">
+                {/* Selected Questions Chip Area */}
+                {formData.checklist.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pb-4 border-b border-white/5">
+                    {formData.checklist.map((q, idx) => (
+                      <div key={idx} className="flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-indigo-500/20 group">
+                        <span className="max-w-[150px] truncate">{q}</span>
+                        <button type="button" onClick={() => removeQuestion(q)} className="hover:text-rose-400">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {questionLibrary.map((cat, idx) => (
+                  <div key={idx} className="space-y-3">
+                    <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      <div className="w-1 h-3 bg-indigo-500/50 rounded-full" /> {cat.category}
+                    </h4>
+                    <div className="space-y-2">
+                      {cat.questions.map((q, qIdx) => (
+                        <label key={qIdx} className="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-xl cursor-pointer hover:bg-white/[0.08] transition-all group">
+                          <input 
+                            type="checkbox"
+                            checked={formData.checklist.includes(q)}
+                            onChange={() => toggleQuestion(q)}
+                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
+                          />
+                          <span className={`text-[11px] font-medium transition-colors ${formData.checklist.includes(q) ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+                            {q}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <Calendar className="w-3 h-3" /> Due Date
-              </label>
-              <input 
-                type="date"
-                required
-                value={formData.dueDate}
-                onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all"
-              />
+              </div>
             </div>
           </div>
 
-          {formData.siteId && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <CheckCircle className="w-3 h-3" /> Select Sub-Zones ({subsites.length})
-                </label>
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-40 overflow-y-auto space-y-2 custom-scrollbar">
-                  {subsites.map(sub => (
-                    <label key={sub._id} className="flex items-center gap-3 cursor-pointer group">
-                      <input 
-                        type="checkbox"
-                        checked={formData.subsiteIds.includes(sub._id)}
-                        onChange={(e) => {
-                          const ids = e.target.checked 
-                            ? [...formData.subsiteIds, sub._id]
-                            : formData.subsiteIds.filter(id => id !== sub._id);
-                          setFormData({...formData, subsiteIds: ids});
-                        }}
-                        className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
-                      />
-                      <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{sub.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Users className="w-3 h-3" /> Assign Inspectors ({inspectors.length})
-                </label>
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 h-40 overflow-y-auto space-y-2 custom-scrollbar">
-                  {inspectors.map(ins => (
-                    <label key={ins._id} className="flex items-center gap-3 cursor-pointer group">
-                      <input 
-                        type="checkbox"
-                        checked={formData.assignedInspectors.includes(ins._id)}
-                        onChange={(e) => {
-                          const ids = e.target.checked 
-                            ? [...formData.assignedInspectors, ins._id]
-                            : formData.assignedInspectors.filter(id => id !== ins._id);
-                          setFormData({...formData, assignedInspectors: ids});
-                        }}
-                        className="w-4 h-4 rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-0"
-                      />
-                      <span className="text-xs text-slate-400 group-hover:text-white transition-colors">{ins.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-            Initialize Inspection Cycle
-          </button>
+          <div className="mt-12">
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 disabled:opacity-50 active:scale-[0.98]"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+              Initialize Safety Inspection Cycle
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -222,6 +361,12 @@ const CreateDriveModal = ({ onClose, onSuccess }: CreateDriveModalProps) => {
 const Plus = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+  </svg>
+);
+
+const CheckSquare = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
   </svg>
 );
 

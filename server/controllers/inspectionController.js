@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 // @access  Private (Compliance Officer)
 exports.createDrive = async (req, res) => {
   try {
-    const { title, description, inspectionType, siteId, subsiteIds, assignedInspectors, dueDate } = req.body;
+    const { title, description, inspectionType, siteId, subsiteIds, assignedInspectors, dueDate, checklist } = req.body;
 
     // Create Drive
     const drive = await InspectionDrive.create({
@@ -20,6 +20,7 @@ exports.createDrive = async (req, res) => {
       siteId,
       assignedInspectors,
       dueDate,
+      checklist,
       createdBy: req.user._id
     });
 
@@ -29,6 +30,7 @@ exports.createDrive = async (req, res) => {
       siteId,
       subsiteId,
       assignedTo: assignedInspectors[0], // For simplicity, assign to first selected inspector or distribute
+      checklistResults: (checklist || []).map(q => ({ question: q, checked: false })),
       status: 'pending'
     }));
 

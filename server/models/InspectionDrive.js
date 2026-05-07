@@ -23,6 +23,7 @@ const InspectionDriveSchema = new mongoose.Schema({
     enum: ['active', 'completed', 'archived'],
     default: 'active'
   },
+  checklist: [{ type: String }],
   createdAt: { type: Date, default: Date.now }
 });
 

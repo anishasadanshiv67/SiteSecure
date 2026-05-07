@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Loader2, CheckCircle, Camera, Upload, AlertTriangle, MapPin, FileText, Layout } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Loader2, CheckCircle, Camera, Upload, AlertTriangle, FileText } from 'lucide-react';
 import API from '../../utils/api';
 
 interface InspectionTaskViewProps {
@@ -16,13 +17,17 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
   const [remarks, setRemarks] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [checklist, setChecklist] = useState([
-    { question: 'Emergency exits clear and unobstructed', checked: false },
-    { question: 'No visible wiring damage or exposed electricals', checked: false },
-    { question: 'Safety signs and instructions clearly present', checked: false },
-    { question: 'Equipment appears safe and maintained', checked: false },
-    { question: 'Area clean and free of hazardous obstruction', checked: false },
-  ]);
+  const [checklist, setChecklist] = useState(
+    task.checklistResults && task.checklistResults.length > 0 
+      ? task.checklistResults 
+      : [
+          { question: 'Emergency exits clear and unobstructed', checked: false },
+          { question: 'No visible wiring damage or exposed electricals', checked: false },
+          { question: 'Safety signs and instructions clearly present', checked: false },
+          { question: 'Equipment appears safe and maintained', checked: false },
+          { question: 'Area clean and free of hazardous obstruction', checked: false },
+        ]
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -64,14 +69,15 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" onClick={onClose} />
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8">
+      <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl" onClick={onClose} />
       
-      <div className="relative bg-slate-900 border border-white/10 w-full max-w-5xl h-full max-h-[90vh] rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col">
-        <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+      <div className="relative bg-slate-900 border border-white/10 w-full max-w-6xl h-full max-h-[95vh] rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-6">
-            <div className="p-4 bg-indigo-500/10 rounded-2xl">
+            <div className="p-4 bg-indigo-500/10 rounded-2xl hidden md:block">
               <CheckCircle className="w-8 h-8 text-indigo-400" />
             </div>
             <div>
@@ -79,7 +85,7 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
                 <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-md">Safety Audit</span>
                 <span className="text-slate-600 font-mono text-[10px] uppercase">{task.inspectionDriveId?.inspectionType}</span>
               </div>
-              <h2 className="text-2xl font-black text-white tracking-tight">{task.subsiteId?.name}</h2>
+              <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">{task.subsiteId?.name}</h2>
             </div>
           </div>
           <button onClick={onClose} className="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
@@ -87,10 +93,12 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            {/* Left Column */}
             <div className="space-y-8">
-              <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 space-y-6">
+              <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 md:p-8 space-y-6">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-3">
                   <FileText className="w-5 h-5 text-indigo-400" /> Inspection Checklist
                 </h3>
@@ -127,7 +135,7 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
                       className="aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center hover:bg-white/10 transition-all"
                     >
                       <Upload className="w-6 h-6 text-slate-600 mb-2" />
-                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Upload Photo</span>
+                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Upload</span>
                       <input type="file" id="inspectUpload" className="hidden" accept="image/*" onChange={handleFileChange} />
                     </button>
                   )}
@@ -135,9 +143,10 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
               </div>
             </div>
 
+            {/* Right Column */}
             <div className="space-y-8">
               <div className="bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-xl aspect-video">
-                 <img src={`${API_URL}${task.subsiteId?.mapImage}`} className="w-full h-full object-cover" alt="Subsite Map" />
+                 <img src={`${API_URL}${task.subsiteId?.mapImage}`} className="w-full h-full object-cover" alt="Map" />
               </div>
 
               <div className="space-y-2">
@@ -146,11 +155,11 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-6 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all min-h-[150px] resize-none"
-                  placeholder="Describe your inspection findings..."
+                  placeholder="Describe findings..."
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 <button 
                   onClick={() => onRaiseIncident(task)}
                   className="py-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-rose-500 hover:text-white transition-all shadow-xl"
@@ -170,7 +179,8 @@ const InspectionTaskView = ({ task, onClose, onSuccess, onRaiseIncident }: Inspe
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
