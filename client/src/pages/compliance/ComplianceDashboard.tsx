@@ -52,6 +52,7 @@ const ComplianceDashboard = () => {
   const [complianceNotes, setComplianceNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [driveTasks, setDriveTasks] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (view === 'QUEUE') {
@@ -150,6 +151,56 @@ const ComplianceDashboard = () => {
     }
   };
 
+  const handleExportSummary = () => {
+    if (summaryTasks.length === 0) return;
+    const csvContent = [
+      [
+        t('compliance.export.headers.inspector'),
+        t('compliance.export.headers.subZone'),
+        t('compliance.export.headers.status'),
+        t('compliance.export.headers.issueFound'),
+        t('compliance.export.headers.remarks'),
+        t('compliance.export.headers.completedAt')
+      ],
+      ...summaryTasks.map(task => [
+        task.assignedTo?.name || t('common.unknown'),
+        task.subsiteId?.name || t('common.unknown'),
+        task.status,
+        task.issueFound ? t('common.yes') : t('common.no'),
+        task.remarks || '',
+        task.completedAt ? new Date(task.completedAt).toLocaleString() : t('common.pending')
+      ])
+    ].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `compliance-report-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Filtered lists based on search
+  const filteredIncidents = incidents.filter(inc =>
+    inc.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inc.siteName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inc.subsiteName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredHistoryIncidents = historyIncidents.filter(inc =>
+    inc.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inc.siteName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    inc.subsiteName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredDrives = inspectionDrives.filter(drive =>
+    drive.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    drive.siteId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const renderInspections = () => {
     if (inspectionView === 'SUMMARY') return renderWeeklySummary();
     if (inspectionView === 'DETAILS') return renderDriveDetails();
@@ -159,13 +210,13 @@ const ComplianceDashboard = () => {
         <div className="flex items-center justify-between px-8 pt-4">
            <div className="flex items-center gap-4">
               <button 
-                onClick={() => setInspectionView('DRIVES')}
-                className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  inspectionView === 'DRIVES' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                {t('compliance.inspections.cycles')}
-              </button>
+              onClick={() => setInspectionView('DRIVES')}
+              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                inspectionView === 'DRIVES' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {t('compliance.inspections.cycles')}
+            </button>
               <button 
                 onClick={fetchSummary}
                 className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
@@ -183,13 +234,13 @@ const ComplianceDashboard = () => {
               <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t('common:loading')}</p>
             </div>
-          ) : inspectionDrives.length === 0 ? (
+          ) : filteredDrives.length === 0 ? (
             <div className="py-20 text-center">
               <div className="w-20 h-20 bg-indigo-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                 <Activity className="w-10 h-10 text-indigo-400" />
               </div>
-              <h4 className="text-white font-bold text-lg">{t('compliance.inspections.noDrives')}</h4>
-              <p className="text-slate-500 text-sm">{t('compliance.inspections.noDrivesDesc')}</p>
+              <h4 className="text-white font-bold text-lg">{searchTerm ? 'No matching drives' : t('compliance.inspections.noDrives')}</h4>
+              <p className="text-slate-500 text-sm">{searchTerm ? 'Try a different search term.' : t('compliance.inspections.noDrivesDesc')}</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
@@ -204,7 +255,7 @@ const ComplianceDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {inspectionDrives.map((drive) => (
+                {filteredDrives.map((drive) => (
                   <tr key={drive._id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedDrive(drive); setInspectionView('DETAILS'); fetchDriveTasks(drive._id); }}>
                     <td className="px-8 py-6">
                       <div>
@@ -281,9 +332,13 @@ const ComplianceDashboard = () => {
              <h2 className="text-3xl font-black text-white uppercase tracking-tight">Weekly Compliance Summary</h2>
              <p className="text-slate-500 text-sm mt-1">Institutional safety audit performance for the last 7 days.</p>
           </div>
-          <button className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-600/20">
-             Export Report
-          </button>
+          <button 
+               onClick={handleExportSummary}
+               disabled={summaryTasks.length === 0}
+               className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+               Export Report
+            </button>
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -617,6 +672,8 @@ const ComplianceDashboard = () => {
                  <input 
                    type="text" 
                    placeholder="Search..." 
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
                    className="bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all w-64"
                  />
                </div>
@@ -630,16 +687,18 @@ const ComplianceDashboard = () => {
                   <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
                   <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t('common:loading')}</p>
                 </div>
-              ) : (view === 'QUEUE' ? incidents : historyIncidents).length === 0 ? (
+              ) : (view === 'QUEUE' ? filteredIncidents : filteredHistoryIncidents).length === 0 ? (
                 <div className="py-20 text-center">
                   <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                     {view === 'QUEUE' ? <CheckCircle className="w-10 h-10 text-emerald-500" /> : <HistoryIcon className="w-10 h-10 text-emerald-500" />}
                   </div>
-                  <h4 className="text-white font-bold text-lg">{view === 'QUEUE' ? t('compliance.status.allClear') : t('compliance.status.noHistory')}</h4>
+                  <h4 className="text-white font-bold text-lg">
+                    {searchTerm ? 'No matching results' : (view === 'QUEUE' ? t('compliance.status.allClear') : t('compliance.status.noHistory'))}
+                  </h4>
                   <p className="text-slate-500 text-sm">
-                    {view === 'QUEUE' 
-                      ? t('compliance.status.noPending') 
-                      : t('compliance.status.noClosed')}
+                    {searchTerm 
+                      ? 'Try a different search term.'
+                      : (view === 'QUEUE' ? t('compliance.status.noPending') : t('compliance.status.noClosed'))}
                   </p>
                 </div>
               ) : (
@@ -654,7 +713,7 @@ const ComplianceDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {(view === 'QUEUE' ? incidents : historyIncidents).map((inc) => (
+                    {(view === 'QUEUE' ? filteredIncidents : filteredHistoryIncidents).map((inc) => (
                       <tr key={inc._id} className="group hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedIncident(inc); setShowDetailModal(true); }}>
                         <td className="px-8 py-6">
                           <div className="flex items-center gap-4">

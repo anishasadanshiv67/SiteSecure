@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 const API_URL = 'http://localhost:5000';
 
@@ -40,6 +41,7 @@ type ViewState = 'SITES' | 'SUBSITES' | 'INCIDENTS' | 'DETAIL' | 'HISTORY';
 
 const ResolverDashboard = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [view, setView] = useState<ViewState>('SITES');
   const [activeTasks, setActiveTasks] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
@@ -78,6 +80,15 @@ const ResolverDashboard = () => {
     );
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/dashboard/resolution' && view !== 'SITES') {
+      setView('SITES');
+      setSelectedSite(null);
+      setSelectedSubsite(null);
+      setSelectedIncident(null);
+    }
+  }, [location.pathname]);
 
   // Distance Calculation
   useEffect(() => {
@@ -419,6 +430,7 @@ const ResolverDashboard = () => {
               date={new Date(inc.createdAt).toLocaleDateString()}
               location={inc.location}
               onImageClick={setLightboxImage}
+              onDetail={() => { setSelectedIncident(inc); setView('DETAIL'); }}
             />
           </div>
         ))}

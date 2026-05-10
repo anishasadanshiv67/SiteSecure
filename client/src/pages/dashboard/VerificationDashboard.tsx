@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 const API_URL = 'http://localhost:5000';
 
@@ -42,6 +43,7 @@ type ViewState = 'SITES' | 'SUBSITES' | 'INCIDENTS' | 'DETAIL' | 'HISTORY' | 'SC
 
 const VerificationDashboard = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [view, setView] = useState<ViewState>('SITES');
   const [allReported, setAllReported] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
@@ -80,6 +82,15 @@ const VerificationDashboard = () => {
       return () => navigator.geolocation.clearWatch(watchId);
     }
   }, [user?.role]);
+
+  useEffect(() => {
+    if (location.pathname === '/dashboard/verification' && view !== 'SITES') {
+      setView('SITES');
+      setSelectedSite(null);
+      setSelectedSubsite(null);
+      setSelectedIncident(null);
+    }
+  }, [location.pathname]);
 
   // UX Improvement: If there's only one site available, skip directly to its subsites
   useEffect(() => {
@@ -482,6 +493,7 @@ const VerificationDashboard = () => {
               date={new Date(inc.createdAt).toLocaleDateString()}
               location={inc.location}
               onImageClick={setLightboxImage}
+              onDetail={() => { setSelectedIncident(inc); setView('DETAIL'); }}
             />
           </div>
         ))}

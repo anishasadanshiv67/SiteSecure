@@ -238,6 +238,17 @@
     "noLogsSubtitle": "System actions will appear here once they occur.",
     "fetchError": "Failed to fetch security logs.",
     "unknownIncident": "Unknown Incident",
+    "searchPlaceholder": "Search logs...",
+    "export": "Export",
+    "showingEntries": "Showing {{count}} of {{total}} entries",
+    "noMatchingLogs": "No matching logs",
+    "noMatchingLogsSubtitle": "Try adjusting your search or filter.",
+    "filters": {
+      "all": "All Actions",
+      "approvals": "Approvals",
+      "rejections": "Rejections",
+      "other": "Other"
+    },
     "columns": {
       "timestamp": "Timestamp",
       "user": "User",
@@ -384,6 +395,16 @@
         "fire": "Fire Safety Inspection",
         "electrical": "Electrical Inspection",
         "equipment": "Equipment Inspection"
+      }
+    },
+    "export": {
+      "headers": {
+        "inspector": "Inspector Name",
+        "subZone": "Facility Sub-Zone",
+        "status": "Final Status",
+        "issueFound": "Defect Found",
+        "remarks": "Officer Remarks",
+        "completedAt": "Completion Date"
       }
     }
   }

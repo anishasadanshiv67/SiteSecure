@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import API from '../../utils/api';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import SubsiteMap from '../../components/dashboard/SubsiteMap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Users, 
   Map as MapIcon, 
@@ -41,6 +41,7 @@ type AssignTab = 'EXISTING' | 'NEW';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [view, setView] = useState<ViewType>('LIST');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -85,6 +86,13 @@ const AdminDashboard = () => {
     fetchSites();
     fetchAllUsers();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/dashboard/admin' && view !== 'LIST') {
+      setView('LIST');
+      setSelectedSite(null);
+    }
+  }, [location.pathname]);
 
   // UX Improvement: If there's only one site assigned to this admin, skip to detail view
   // (only on initial load, not when user explicitly presses back)

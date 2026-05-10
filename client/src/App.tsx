@@ -36,7 +36,7 @@ function AppRoutes() {
         <Route path="/dashboard/flagger/report" element={<ProtectedRoute allowedRoles={['flagger']}><ReportIncident /></ProtectedRoute>} />
         <Route path="/dashboard/flagger/my-reports" element={<ProtectedRoute allowedRoles={['flagger']}><MyReports /></ProtectedRoute>} />
         <Route path="/dashboard/verification" element={<ProtectedRoute allowedRoles={['online_verifier', 'ground_verifier']}><VerificationDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/security" element={<ProtectedRoute allowedRoles={['site_admin', 'super_admin', 'compliance_officer']}><SecurityLog /></ProtectedRoute>} />
+        <Route path="/dashboard/security" element={<ProtectedRoute allowedRoles={['site_admin', 'super_admin', 'compliance_officer', 'online_verifier', 'ground_verifier', 'resolver']}><SecurityLog /></ProtectedRoute>} />
         <Route path="/dashboard/resolution" element={<ProtectedRoute allowedRoles={['resolver']}><ResolverDashboard /></ProtectedRoute>} />
         <Route path="/dashboard/admin" element={<ProtectedRoute allowedRoles={['site_admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
         <Route path="/dashboard/superadmin" element={<ProtectedRoute allowedRoles={['super_admin']}><SuperAdminControlPanel /></ProtectedRoute>} />

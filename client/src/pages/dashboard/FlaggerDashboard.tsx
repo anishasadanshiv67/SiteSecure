@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import { useLocation, useNavigate } from 'react-router-dom';
 import StatCard from '../../components/dashboard/StatCard';
 import IncidentCard from '../../components/dashboard/IncidentCard';
 import SubsiteMap from '../../components/dashboard/SubsiteMap';
@@ -41,6 +42,8 @@ type ViewState = 'MENU' | 'SCAN' | 'SITE_LIST' | 'SUBSITE_LIST' | 'SUBSITE_DETAI
 
 const FlaggerDashboard: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation(['dashboard', 'common']);
   const [view, setView] = useState<ViewState>('MENU');
   const [loading, setLoading] = useState(false);
@@ -75,6 +78,14 @@ const FlaggerDashboard: React.FC = () => {
   useEffect(() => {
     fetchMyIncidents();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/dashboard/flagger' && view !== 'MENU') {
+      // Only reset if we are not coming from a sub-view that should be preserved
+      // or if the user explicitly navigated to the base dashboard
+      resetState();
+    }
+  }, [location.pathname]);
 
   const fetchMyIncidents = async () => {
     try {
@@ -385,7 +396,7 @@ const FlaggerDashboard: React.FC = () => {
           </button>
 
           <button 
-            onClick={() => setView('HISTORY')}
+            onClick={() => navigate('/dashboard/flagger/my-reports')}
             className="group relative bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center hover:border-emerald-500/50 transition-all hover:-translate-y-2 overflow-hidden shadow-2xl"
           >
             <div className="absolute top-0 right-0 p-6 opacity-5">
@@ -805,6 +816,7 @@ const FlaggerDashboard: React.FC = () => {
             image={inc.image}
             images={inc.images}
             onImageClick={setLightboxImage}
+            onDetail={() => setView('HISTORY')}
           />
         ))}
         {myIncidents.length === 0 && (

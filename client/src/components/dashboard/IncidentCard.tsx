@@ -26,10 +26,11 @@ interface IncidentCardProps {
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
   onImageClick?: (url: string) => void;
+  onDetail?: (id: string) => void;
 }
 
 const IncidentCard: React.FC<IncidentCardProps> = ({ 
-  id, title, description, severity, status, date, location, resolution, image, images, onDelete, onEdit, onImageClick 
+  id, title, description, severity, status, date, location, resolution, image, images, onDelete, onEdit, onImageClick, onDetail 
 }) => {
   const severityColors = {
     High: 'bg-red-500/10 text-red-400 border-red-500/20',
@@ -225,7 +226,10 @@ const IncidentCard: React.FC<IncidentCardProps> = ({
             </div>
           )}
         </div>
-        <button className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-500 hover:text-white transition-all">
+        <button 
+          onClick={() => onDetail?.(id)}
+          className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-500 hover:text-white transition-all"
+        >
           Details
         </button>
       </div>

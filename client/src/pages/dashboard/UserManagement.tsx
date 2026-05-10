@@ -16,7 +16,8 @@ import {
   X,
   ShieldCheck,
   Building,
-  Key
+  Key,
+  Edit2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -27,6 +28,9 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ role: '', siteIds: [] as string[] });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -83,6 +87,32 @@ const UserManagement = () => {
       fetchData();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Failed to create user', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openEditModal = (u: any) => {
+    setEditingUser(u);
+    setEditForm({
+      role: u.role,
+      siteIds: u.siteIds?.map((s: any) => s._id || s) || []
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setSubmitting(true);
+    try {
+      await API.put(`/users/${editingUser._id}/role`, { role: editForm.role });
+      showToast(`${editingUser.name}'s role updated successfully!`, 'success');
+      setShowEditModal(false);
+      setEditingUser(null);
+      fetchData();
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Failed to update user', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -241,8 +271,12 @@ const UserManagement = () => {
                         >
                           <Trash2 className="w-4.5 h-4.5" />
                         </button>
-                        <button className="p-2.5 bg-white/5 rounded-xl text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100">
-                          <MoreVertical className="w-4.5 h-4.5" />
+                        <button 
+                          onClick={() => openEditModal(u)}
+                          className="p-2.5 bg-white/5 rounded-xl text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100"
+                          title="Edit User Role"
+                        >
+                          <Edit2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -367,6 +401,54 @@ const UserManagement = () => {
                 className="w-full py-4 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 flex items-center justify-center gap-3"
               >
                 {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> Activate Personnel</>}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Role Modal */}
+      {showEditModal && editingUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onClick={() => setShowEditModal(false)} />
+          <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-md relative overflow-hidden shadow-2xl animate-scale-in">
+            <div className="p-8 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight">Edit Personnel</h2>
+                <p className="text-slate-400 text-sm mt-1">Update role for <span className="text-white font-bold">{editingUser.name}</span></p>
+              </div>
+              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-500 hover:text-white transition-all">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateUser} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Level</label>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <select 
+                    value={editForm.role}
+                    onChange={(e) => setEditForm({...editForm, role: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white appearance-none focus:outline-none focus:border-indigo-500/50"
+                  >
+                    <option value="flagger" className="bg-slate-900">Flagger</option>
+                    <option value="ground_verifier" className="bg-slate-900">Ground Verifier</option>
+                    <option value="online_verifier" className="bg-slate-900">Online Verifier</option>
+                    <option value="resolver" className="bg-slate-900">Resolver</option>
+                    <option value="compliance_officer" className="bg-slate-900">Compliance Officer</option>
+                    <option value="site_admin" className="bg-slate-900">Site Admin (Manager)</option>
+                    <option value="super_admin" className="bg-slate-900">Super Admin (Director)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="w-full py-4 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 flex items-center justify-center gap-3"
+              >
+                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Shield className="w-5 h-5" /> Update Role</>}
               </button>
             </form>
           </div>

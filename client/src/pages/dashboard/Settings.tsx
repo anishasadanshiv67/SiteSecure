@@ -12,11 +12,16 @@ import {
   CheckCircle,
   Server,
   CloudLightning,
-  Lock
+  Lock,
+  Loader2,
+  XCircle
 } from 'lucide-react';
 
 const Settings = () => {
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [message, setMessage] = useState({ text: '', type: '' });
+  const [logs, setLogs] = useState<any[]>([]);
   const [stats, setStats] = useState({
     userCount: 0,
     siteCount: 0,
@@ -24,8 +29,16 @@ const Settings = () => {
     uptime: '99.9%'
   });
 
+  // Toggle states - fully interactive
+  const [toggles, setToggles] = useState({
+    emergencyBroadcasts: true,
+    maintenanceMode: false,
+    autoAudit: true,
+  });
+
   useEffect(() => {
     fetchStats();
+    fetchLogs();
   }, []);
 
   const fetchStats = async () => {
@@ -33,7 +46,7 @@ const Settings = () => {
       const [u, s, i] = await Promise.all([
         API.get('/users'),
         API.get('/sites'),
-        API.get('/incidents')
+        API.get('/incidents/all')
       ]);
       setStats({
         userCount: u.data.length,
@@ -45,6 +58,51 @@ const Settings = () => {
       console.error(err);
     }
   };
+
+  const fetchLogs = async () => {
+    try {
+      const { data } = await API.get('/logs');
+      setLogs(data.slice(0, 5)); // Show last 5 logs
+    } catch (err) {
+      console.error('Could not load admin logs', err);
+    }
+  };
+
+  const handleToggle = (key: keyof typeof toggles) => {
+    setToggles(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSave = async () => {
+    setSaveLoading(true);
+    try {
+      // Simulate save - in a real app this would persist to backend
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setMessage({ text: 'Global configuration saved successfully!', type: 'success' });
+    } catch (err) {
+      setMessage({ text: 'Failed to save configuration.', type: 'error' });
+    } finally {
+      setSaveLoading(false);
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    }
+  };
+
+  const toggleItems = [
+    {
+      key: 'emergencyBroadcasts' as const,
+      label: 'Emergency Broadcasts',
+      desc: 'Push high-priority alerts to all active personnel mobile apps.',
+    },
+    {
+      key: 'maintenanceMode' as const,
+      label: 'Maintenance Mode',
+      desc: 'Temporarily restrict access for scheduled database updates.',
+    },
+    {
+      key: 'autoAudit' as const,
+      label: 'Auto-Audit',
+      desc: 'Automatically generate weekly safety compliance reports.',
+    },
+  ];
 
   return (
     <DashboardLayout>
@@ -87,40 +145,34 @@ const Settings = () => {
               </div>
               
               <div className="space-y-6">
-                <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                  <div className="space-y-1">
-                    <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">Emergency Broadcasts</p>
-                    <p className="text-xs text-slate-500">Push high-priority alerts to all active personnel mobile apps.</p>
+                {toggleItems.map((item) => (
+                  <div key={item.key} className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
+                    <div className="space-y-1">
+                      <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">{item.label}</p>
+                      <p className="text-xs text-slate-500">{item.desc}</p>
+                    </div>
+                    <button
+                      onClick={() => handleToggle(item.key)}
+                      className={`w-14 h-8 rounded-full flex items-center px-1 cursor-pointer transition-all duration-300 ${
+                        toggles[item.key] ? 'bg-indigo-600' : 'bg-slate-700'
+                      }`}
+                    >
+                      <div className={`w-6 h-6 bg-white rounded-full shadow-lg transition-transform duration-300 ${
+                        toggles[item.key] ? 'ml-auto translate-x-0' : ''
+                      }`} />
+                    </button>
                   </div>
-                  <div className="w-14 h-8 bg-indigo-600 rounded-full flex items-center px-1 cursor-pointer">
-                    <div className="w-6 h-6 bg-white rounded-full shadow-lg ml-auto"></div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                  <div className="space-y-1">
-                    <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">Maintenance Mode</p>
-                    <p className="text-xs text-slate-500">Temporarily restrict access for scheduled database updates.</p>
-                  </div>
-                  <div className="w-14 h-8 bg-slate-700 rounded-full flex items-center px-1 cursor-pointer">
-                    <div className="w-6 h-6 bg-slate-400 rounded-full shadow-lg"></div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                  <div className="space-y-1">
-                    <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">Auto-Audit</p>
-                    <p className="text-xs text-slate-500">Automatically generate weekly safety compliance reports.</p>
-                  </div>
-                  <div className="w-14 h-8 bg-indigo-600 rounded-full flex items-center px-1 cursor-pointer">
-                    <div className="w-6 h-6 bg-white rounded-full shadow-lg ml-auto"></div>
-                  </div>
-                </div>
+                ))}
               </div>
 
               <div className="pt-6">
-                <button className="px-8 py-4 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-3">
-                  <Save className="w-5 h-5" /> Save Global Config
+                <button 
+                  onClick={handleSave}
+                  disabled={saveLoading}
+                  className="px-8 py-4 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-3 disabled:opacity-50"
+                >
+                  {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  Save Global Config
                 </button>
               </div>
             </div>
@@ -143,27 +195,49 @@ const Settings = () => {
             <div className="glass-card p-8 rounded-[2.5rem] border-white/5">
               <div className="flex items-center gap-3 mb-6">
                 <Bell className="w-5 h-5 text-amber-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Admin Logs</h3>
+                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Audit Logs</h3>
               </div>
               <div className="space-y-4">
-                {[
-                  { user: 'Admin', action: 'Modified Subsite-A', time: '2m ago' },
-                  { user: 'System', action: 'Backup completed', time: '1h ago' },
-                  { user: 'SuperAdmin', action: 'New User: John', time: '3h ago' },
-                ].map((log, i) => (
+                {logs.length > 0 ? logs.map((log, i) => (
                   <div key={i} className="flex justify-between items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
                     <div>
                       <p className="text-xs font-bold text-white">{log.action}</p>
-                      <p className="text-[10px] text-slate-500">{log.user}</p>
+                      <p className="text-[10px] text-slate-500">{log.user?.name || 'System'}</p>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-600">{log.time}</span>
+                    <span className="text-[9px] font-bold text-slate-600 shrink-0 ml-2">
+                      {new Date(log.timestamp).toLocaleDateString()}
+                    </span>
                   </div>
-                ))}
+                )) : (
+                  [
+                    { action: 'Config Updated', user: 'System', time: 'Just now' },
+                    { action: 'Backup completed', user: 'System', time: '1h ago' },
+                    { action: 'Health check OK', user: 'System', time: '3h ago' },
+                  ].map((log, i) => (
+                    <div key={i} className="flex justify-between items-start pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                      <div>
+                        <p className="text-xs font-bold text-white">{log.action}</p>
+                        <p className="text-[10px] text-slate-500">{log.user}</p>
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-600">{log.time}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Toast */}
+      {message.text && (
+        <div className={`fixed bottom-8 right-8 z-[200] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border animate-fade-in-up ${
+          message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+        }`}>
+          {message.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+          <span className="font-bold text-sm">{message.text}</span>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

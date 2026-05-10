@@ -29,7 +29,38 @@
     "reportingHistory": "आपकी रिपोर्टिंग इतिहास", "total": "कुल", "noReports": "आपके रिकॉर्ड में कोई रिपोर्ट नहीं मिली",
     "reportSuccess": "घटना सफलतापूर्वक रिपोर्ट की गई!", "reportError": "रिपोर्ट प्रक्रिया विफल"
   },
-  "security": { "title": "ऑडिट लॉग", "subtitle": "अनुपालन के लिए सिस्टम-व्यापी सुरक्षा और क्रिया ट्रैकिंग।", "noLogs": "कोई ऑडिट लॉग नहीं मिला", "noLogsSubtitle": "सिस्टम क्रियाएं यहां दिखाई देंगी।", "fetchError": "सुरक्षा लॉग प्राप्त करने में विफल।", "unknownIncident": "अज्ञात घटना", "columns": { "timestamp": "टाइमस्टैम्प", "user": "उपयोगकर्ता", "action": "क्रिया", "incidentRef": "घटना संदर्भ" } },
+  "security": { 
+    "title": "ऑडिट लॉग", 
+    "subtitle": "अनुपालन के लिए सिस्टम-व्यापी सुरक्षा और क्रिया ट्रैकिंग।", 
+    "noLogs": "कोई ऑडिट लॉग नहीं मिला", 
+    "noLogsSubtitle": "सिस्टम क्रियाएं यहां दिखाई देंगी।", 
+    "fetchError": "सुरक्षा लॉग प्राप्त करने में विफल।", 
+    "unknownIncident": "अज्ञात घटना", 
+    "searchPlaceholder": "लॉग खोजें...",
+    "export": "निर्यात करें",
+    "showingEntries": "{{total}} में से {{count}} प्रविष्टियाँ दिखाई दे रही हैं",
+    "noMatchingLogs": "कोई मिलान लॉग नहीं",
+    "noMatchingLogsSubtitle": "अपनी खोज या फ़िल्टर को समायोजित करने का प्रयास करें।",
+    "filters": {
+      "all": "सभी क्रियाएं",
+      "approvals": "अनुमोदन",
+      "rejections": "अस्वीकृतियां",
+      "other": "अन्य"
+    },
+    "columns": { "timestamp": "टाइमस्टैम्प", "user": "उपयोगकर्ता", "action": "क्रिया", "incidentRef": "घटना संदर्भ" } 
+  },
   "myReports": { "title": "मेरी घटना रिपोर्ट", "subtitle": "आपकी सबमिट की गई सुरक्षा घटनाओं को ट्रैक करें।", "searchPlaceholder": "मेरी रिपोर्ट खोजें...", "noReports": "कोई रिपोर्ट नहीं मिली", "noReportsSubtitle": "आपने अभी तक कोई घटना रिपोर्ट सबमिट नहीं की है।", "fetchError": "आपकी रिपोर्ट लोड करने में विफल।" },
-  "reportIncident": { "title": "नई घटना रिपोर्ट करें", "subtitle": "मानचित्र पर सुरक्षा खतरे को सटीक रूप से चिह्नित करें।", "incidentTitle": "घटना शीर्षक", "severity": "गंभीरता", "locationName": "स्थान का नाम", "description": "विवरण", "submitReport": "घटना रिपोर्ट सबमिट करें", "successTitle": "रिपोर्ट सबमिट हुई!", "successSubtitle": "आपकी घटना सफलतापूर्वक लॉग हो गई। रीडायरेक्ट हो रहे हैं...", "pinpointLocation": "स्थान चिह्नित करें", "coordinatesCaptured": "निर्देशांक कैप्चर किए गए" }
+  "reportIncident": { "title": "नई घटना रिपोर्ट करें", "subtitle": "मानचित्र पर सुरक्षा खतरे को सटीक रूप से चिह्नित करें।", "incidentTitle": "घटना शीर्षक", "severity": "गंभीरता", "locationName": "स्थान का नाम", "description": "विवरण", "submitReport": "घटना रिपोर्ट सबमिट करें", "successTitle": "रिपोर्ट सबमिट हुई!", "successSubtitle": "आपकी घटना सफलतापूर्वक लॉग हो गई। रीडायरेक्ट हो रहे हैं...", "pinpointLocation": "स्थान चिह्नित करें", "coordinatesCaptured": "निर्देशांक कैप्चर किए गए" },
+  "compliance": {
+    "export": {
+      "headers": {
+        "inspector": "निरीक्षक का नाम",
+        "subZone": "सुविधा उप-क्षेत्र",
+        "status": "अंतिम स्थिति",
+        "issueFound": "दोष पाया गया",
+        "remarks": "अधिकारी की टिप्पणी",
+        "completedAt": "पूर्ण होने की तिथि"
+      }
+    }
+  }
 }
