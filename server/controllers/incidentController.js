@@ -359,7 +359,7 @@ const resolveIncident = async (req, res) => {
     const incident = await Incident.findByIdAndUpdate(
       req.params.id,
       { 
-        status: 'compliance_review',
+        status: 'resolved',
         resolution: {
           notes,
           images,
@@ -439,7 +439,7 @@ const deleteIncident = async (req, res) => {
 // @access  Private
 const getComplianceIncidents = async (req, res) => {
   try {
-    const incidents = await Incident.find({ status: 'compliance_review' })
+    const incidents = await Incident.find({ status: 'resolved' })
       .populate('siteId', 'name')
       .populate('subsiteId', 'name mapImage')
       .populate('createdBy', 'name')

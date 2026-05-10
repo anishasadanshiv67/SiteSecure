@@ -406,6 +406,32 @@
         "remarks": "Officer Remarks",
         "completedAt": "Completion Date"
       }
+    },
+    "resolution": {
+      "title": "Resolution Center",
+      "subtitle": "Manage and formally close assigned site hazards.",
+      "activeTasks": "Active Tasks",
+      "history": "Resolution History",
+      "noTasks": "Workspace Clear",
+      "noTasksDesc": "All assigned hazards have been resolved.",
+      "taskZone": "Operational Task Zone",
+      "pendingResolutions": "Pending Resolutions",
+      "proofTitle": "Resolution Proof",
+      "notesPlaceholder": "Describe resolution details...",
+      "uploadProof": "Upload Proof",
+      "captureProof": "Capture Proof",
+      "submitButton": "Complete & Resolve",
+      "submitting": "Submitting...",
+      "success": "Hazard resolved successfully!",
+      "error": "Submission failed",
+      "notesRequired": "Notes and image proof are required",
+      "gpsStatus": {
+        "title": "GPS Status",
+        "searching": "Searching for GPS...",
+        "inRange": "In Range",
+        "outRange": "Out of Range",
+        "distance": "{{dist}}m away"
+      }
     }
   }
 }

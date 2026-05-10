@@ -46,3 +46,8 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# App specific
+server/uploads/
+*.env
+*.env.local

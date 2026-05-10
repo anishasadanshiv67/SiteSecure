@@ -34,12 +34,14 @@ import {
 
 import { useAuth } from '../../context/AuthContext';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = 'http://localhost:5000';
 
 type ViewState = 'SITES' | 'SUBSITES' | 'INCIDENTS' | 'DETAIL' | 'HISTORY';
 
 const ResolverDashboard = () => {
+  const { t } = useTranslation(['dashboard', 'common']);
   const { user } = useAuth();
   const location = useLocation();
   const [view, setView] = useState<ViewState>('SITES');
@@ -129,7 +131,8 @@ const ResolverDashboard = () => {
         API.get('/incidents/all')
       ]);
       setActiveTasks(verifiedResp.data);
-      setHistory(allResp.data.filter((inc: any) => inc.status === 'resolved'));
+      // History should include incidents that are resolved (pending compliance) or fully closed
+      setHistory(allResp.data.filter((inc: any) => ['resolved', 'compliance_review', 'closed'].includes(inc.status)));
     } catch (err: any) {
       setError('Failed to fetch resolution tasks');
     } finally {
@@ -207,7 +210,7 @@ const ResolverDashboard = () => {
   const handleResolveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resolutionNotes || selectedFiles.length === 0) {
-      setMessage({ text: 'Notes and image proof are required', type: 'error' });
+      setMessage({ text: t('resolution.notesRequired'), type: 'error' });
       return;
     }
     
@@ -220,7 +223,7 @@ const ResolverDashboard = () => {
 
     try {
       await API.put(`/incidents/${selectedIncident._id}/resolve`, formData);
-      setMessage({ text: 'Hazard resolved successfully!', type: 'success' });
+      setMessage({ text: t('resolution.success'), type: 'success' });
       setSelectedIncident(null);
       setResolutionNotes('');
       setSelectedFiles([]);
@@ -229,7 +232,7 @@ const ResolverDashboard = () => {
       fetchData();
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     } catch (err) {
-      setMessage({ text: 'Submission failed', type: 'error' });
+      setMessage({ text: t('resolution.error'), type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -322,9 +325,9 @@ const ResolverDashboard = () => {
             </div>
           </div>
           <h3 className="text-2xl font-black text-white mb-2">{site.name}</h3>
-          <p className="text-slate-400 text-sm mb-6">Manage resolution tasks across this site.</p>
+          <p className="text-slate-400 text-sm mb-6">{t('resolution.subtitle')}</p>
           <div className="flex items-center gap-2 text-blue-400 font-black text-xs uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-            View Sub-Zones <ArrowRight className="w-4 h-4" />
+            {t('flagger:menu.viewSites')} <ArrowRight className="w-4 h-4" />
           </div>
         </button>
       ))}
@@ -333,8 +336,8 @@ const ResolverDashboard = () => {
           <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Workspace Clear</h3>
-          <p className="text-slate-500">All assigned hazards have been resolved.</p>
+          <h3 className="text-xl font-bold text-white mb-2">{t('resolution.noTasks')}</h3>
+          <p className="text-slate-500">{t('resolution.noTasksDesc')}</p>
         </div>
       )}
     </div>
@@ -343,7 +346,7 @@ const ResolverDashboard = () => {
   const renderSubsites = () => (
     <div className="space-y-8">
       <button onClick={() => setView('SITES')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-black text-xs uppercase tracking-widest">
-        <ChevronLeft className="w-4 h-4" /> Back to Sites
+        <ChevronLeft className="w-4 h-4" /> {t('common:actions.back')} {t('common:sites')}
       </button>
       
       <div className="flex items-center gap-6 p-8 bg-blue-600 rounded-[2.5rem] shadow-xl shadow-blue-500/20 relative overflow-hidden group">
@@ -353,11 +356,11 @@ const ResolverDashboard = () => {
          <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20 shrink-0">
             <Building2 className="w-10 h-10 text-white" />
          </div>
-         <div className="relative z-10">
-            <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.2em] mb-1">Assigned Facility</p>
+          <div className="relative z-10">
+            <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.2em] mb-1">{t('resolution.taskZone')}</p>
             <h2 className="text-3xl font-black text-white tracking-tight">{selectedSite?.name}</h2>
-            <p className="text-blue-100/60 text-xs font-bold mt-1 uppercase tracking-widest">{selectedSite?.count} Pending Resolutions</p>
-         </div>
+            <p className="text-blue-100/60 text-xs font-bold mt-1 uppercase tracking-widest">{selectedSite?.count} {t('resolution.pendingResolutions')}</p>
+          </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -375,7 +378,7 @@ const ResolverDashboard = () => {
             </div>
             <div className="flex-1">
               <h4 className="text-xl font-black text-white">{sub.name}</h4>
-              <p className="text-slate-500 text-sm">{sub.count} pending tasks</p>
+              <p className="text-slate-500 text-sm">{sub.count} {t('resolution.pendingResolutions')}</p>
             </div>
             <ChevronRight className="w-6 h-6 text-slate-600 group-hover:text-blue-400 transition-colors" />
           </button>
@@ -387,7 +390,7 @@ const ResolverDashboard = () => {
   const renderIncidents = () => (
     <div className="space-y-8">
       <button onClick={() => setView('SUBSITES')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-black text-xs uppercase tracking-widest">
-        <ChevronLeft className="w-4 h-4" /> Back to {selectedSite?.name}
+        <ChevronLeft className="w-4 h-4" /> {t('common:actions.back')} {selectedSite?.name}
       </button>
 
       <div className="bg-slate-900/50 border border-white/10 rounded-[3rem] p-8 relative overflow-hidden group">
@@ -406,11 +409,11 @@ const ResolverDashboard = () => {
             <div className="flex-1">
                <div className="flex items-center gap-3 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Operational Task Zone</p>
+                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">{t('resolution.taskZone')}</p>
                </div>
                <h2 className="text-4xl font-black text-white tracking-tight mb-2">{selectedSubsite?.name}</h2>
                <div className="flex items-center gap-4 text-slate-500 text-[10px] font-black uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><Wrench className="w-3.5 h-3.5" /> {selectedSubsite?.count} Tasks Found</span>
+                  <span className="flex items-center gap-1.5"><Wrench className="w-3.5 h-3.5" /> {selectedSubsite?.count} {t('common:tasks')}</span>
                   <span className="w-1 h-1 rounded-full bg-slate-700"></span>
                   <span className="flex items-center gap-1.5"><MapIcon className="w-3.5 h-3.5" /> {selectedSite?.name}</span>
                </div>
@@ -443,7 +446,7 @@ const ResolverDashboard = () => {
     return (
       <div className="space-y-8 animate-fade-in">
         <button onClick={() => setView('INCIDENTS')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-black text-xs uppercase tracking-widest">
-          <ChevronLeft className="w-4 h-4" /> Back to Tasks
+          <ChevronLeft className="w-4 h-4" /> {t('common:actions.back')} {t('common:tasks')}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -470,13 +473,13 @@ const ResolverDashboard = () => {
             </div>
 
             <form onSubmit={handleResolveSubmit} className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 space-y-6">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Resolution Proof</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('resolution.proofTitle')}</h4>
               
               <textarea 
                 required
                 value={resolutionNotes}
                 onChange={(e) => setResolutionNotes(e.target.value)}
-                placeholder="Describe resolution details..."
+                placeholder={t('resolution.notesPlaceholder')}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-2xl p-4 text-white text-sm focus:outline-none focus:border-blue-500 transition-all resize-none min-h-[100px]"
               />
 
@@ -501,7 +504,7 @@ const ResolverDashboard = () => {
                       className="aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all group overflow-hidden relative"
                     >
                       <Upload className="w-8 h-8 text-slate-600 mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Upload Proof</span>
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t('resolution.uploadProof')}</span>
                     </div>
 
                     <div 
@@ -509,7 +512,7 @@ const ResolverDashboard = () => {
                       className="aspect-video bg-indigo-500/10 border-2 border-dashed border-indigo-500/20 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/20 transition-all group"
                     >
                       <Camera className="w-8 h-8 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest text-center">Capture<br/>Proof</span>
+                      <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest text-center">{t('resolution.captureProof')}</span>
                       <input type="file" id="resCamera" onChange={handleFileChange} className="hidden" accept="image/*" capture="environment" />
                     </div>
                   </div>
@@ -526,15 +529,17 @@ const ResolverDashboard = () => {
                     : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
                 }`}
               >
-                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>Complete & Resolve</span>}
+                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>{t('resolution.submitButton')}</span>}
                 {bypassGeofence ? (
                   <span className="text-[8px] text-blue-200 animate-pulse">Demo Bypass Active</span>
                 ) : (
                   <>
-                    {distanceToIncident !== null && (
+                    {distanceToIncident !== null ? (
                        <span className={`text-[8px] ${distanceToIncident <= 10 ? 'text-blue-200' : 'text-rose-400'}`}>
-                         {distanceToIncident <= 10 ? `In Range (${distanceToIncident.toFixed(1)}m)` : `Out of Range (${distanceToIncident.toFixed(1)}m)`}
+                         {distanceToIncident <= 10 ? t('resolution.gpsStatus.inRange') : t('resolution.gpsStatus.outRange')} ({distanceToIncident.toFixed(1)}m)
                        </span>
+                    ) : (
+                      <span className="text-[8px] text-amber-400 animate-pulse">{t('resolution.gpsStatus.searching')}</span>
                     )}
                   </>
                 )}
@@ -618,16 +623,16 @@ const ResolverDashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
           <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
-             <Wrench className="w-10 h-10 text-blue-500" /> Resolution Center
+             <Wrench className="w-10 h-10 text-blue-500" /> {t('resolution.title')}
           </h1>
-          <p className="text-slate-400 mt-2 text-lg">Manage and formally close assigned site hazards.</p>
+          <p className="text-slate-400 mt-2 text-lg">{t('resolution.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-4">
           {(view === 'SITES' || view === 'SUBSITES' || view === 'INCIDENTS') && (
             <>
               <button onClick={() => qrFileInputRef.current?.click()} className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">
-                <QrCode className="w-4 h-4" /> Upload QR Code
+                <QrCode className="w-4 h-4" /> {t('common:actions.upload')} QR
               </button>
               <input type="file" ref={qrFileInputRef} onChange={handleQrUpload} className="hidden" accept="image/*" />
             </>
@@ -638,7 +643,7 @@ const ResolverDashboard = () => {
       {loading && !activeTasks.length ? (
         <div className="flex flex-col items-center justify-center py-40">
           <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-          <p className="text-slate-500 font-black text-xs uppercase tracking-widest">Loading Tasks...</p>
+          <p className="text-slate-500 font-black text-xs uppercase tracking-widest">{t('common:loading')}...</p>
         </div>
       ) : (
         <div className="animate-fade-in">
